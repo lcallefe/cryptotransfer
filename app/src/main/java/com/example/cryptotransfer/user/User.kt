@@ -22,41 +22,42 @@ package com.example.cryptotransfer.user
 import android.content.SharedPreferences
 import com.google.firebase.firestore.FirebaseFirestore
 import java.security.KeyPairGenerator
+import java.security.MessageDigest
 import java.util.*
 
-private fun newUser(sharedPreferences: SharedPreferences) {
+private fun fingerprint(bytes: ByteArray): String {
+    val md = MessageDigest.getInstance("MD5")
+    md.update(bytes)
+    val sb = StringBuilder()
+    md.digest().map { String.format("%02X", it) }.forEach(sb::append)
+    return sb.toString()
+}
+
+private fun newUser(sharedPreferences: SharedPreferences): String {
     val encoder = Base64.getEncoder()
     val kpg = KeyPairGenerator.getInstance("RSA")
     kpg.initialize(2048)
     val kp = kpg.generateKeyPair()
-    val pub = kp.public
+    val pub = encoder.encodeToString(kp.public.encoded).replace('/', ' ')
     with(sharedPreferences.edit()) {
         putString("privatekey", encoder.encodeToString(kp.private.encoded))
         commit()
     }
-    FirebaseFirestore.getInstance().collection("user").document(encoder.encodeToString(pub.encoded))
-        .set(mapOf("publickey" to pub.toString()))
+    FirebaseFirestore.getInstance().collection("user").document(pub)
+        .set(mapOf("publickey" to pub))
         .addOnSuccessListener { println("Conta criada") }
         .addOnFailureListener { println("Fracasso") }
-
-
-    FirebaseFirestore.getInstance().collection("user").document(encoder.encodeToString(pub.encoded))
-        .get()
-        .addOnSuccessListener { s -> println(s) }
-        .addOnFailureListener { println("Fracasso") }
-    println("- - - - - - - - - - - - - -")
-    println(sharedPreferences.getString("privatekey", "Fracasso"))
-    println("- - - - - - - - - - - - - -")
+    return encoder.encodeToString(kp.public.encoded)
 }
 
-private fun retrieveUser(sharedPreferences: SharedPreferences) {
-    TODO()
-}
+private fun retrievePublicKeyFromSharedPreferences(sharedPreferences: SharedPreferences) =
+    sharedPreferences.getString("privatekey", null)!!
 
-fun getCurrent(sharedPreferences: SharedPreferences) {
-    if (false) {
-        return retrieveUser(sharedPreferences)
-    } else {
-        return newUser(sharedPreferences)
-    }
-}
+fun getPublicKeyAsString(sharedPreferences: SharedPreferences): String =
+    if (sharedPreferences.contains("privatekey")) retrievePublicKeyFromSharedPreferences(
+        sharedPreferences
+    )
+    else newUser(sharedPreferences)
+
+fun getFingerprint(sharedPreferences: SharedPreferences) =
+    fingerprint(getPublicKeyAsString(sharedPreferences).toByteArray())

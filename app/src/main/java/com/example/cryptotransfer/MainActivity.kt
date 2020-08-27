@@ -20,13 +20,14 @@
 package com.example.cryptotransfer
 
 import android.os.Bundle
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.cryptotransfer.user.getCurrent
+import com.example.cryptotransfer.user.getFingerprint
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        getCurrent(getPreferences(MODE_PRIVATE))
         setContentView(R.layout.activity_main)
+        findViewById<TextView>(R.id.PublicKey).text = getFingerprint(getPreferences(MODE_PRIVATE))
     }
 }
