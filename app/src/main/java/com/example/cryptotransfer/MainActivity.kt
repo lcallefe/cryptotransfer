@@ -21,10 +21,12 @@ package com.example.cryptotransfer
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.example.cryptotransfer.user.getCurrent
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        getCurrent(getPreferences(MODE_PRIVATE))
         setContentView(R.layout.activity_main)
     }
 }
