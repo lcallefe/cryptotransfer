@@ -38,25 +38,25 @@ private fun newUser(sharedPreferences: SharedPreferences): String {
     val kpg = KeyPairGenerator.getInstance("RSA")
     kpg.initialize(2048)
     val kp = kpg.generateKeyPair()
-    val pub = encoder.encodeToString(kp.public.encoded).replace('/', ' ')
+    val pub = encoder.encodeToString(kp.public.encoded)
     with(sharedPreferences.edit()) {
         putString("privatekey", encoder.encodeToString(kp.private.encoded))
         commit()
     }
-    FirebaseFirestore.getInstance().collection("user").document(pub)
+    FirebaseFirestore.getInstance().collection("user")
+        .document(fingerprint(encoder.encodeToString(kp.public.encoded).toByteArray()))
         .set(mapOf("publickey" to pub))
         .addOnSuccessListener { println("Conta criada") }
         .addOnFailureListener { println("Fracasso") }
-    return encoder.encodeToString(kp.public.encoded)
+    return pub
 }
 
 private fun retrievePublicKeyFromSharedPreferences(sharedPreferences: SharedPreferences) =
-    sharedPreferences.getString("privatekey", null)!!
+    sharedPreferences.getString("privatekey", null)
 
 fun getPublicKeyAsString(sharedPreferences: SharedPreferences): String =
-    if (sharedPreferences.contains("privatekey")) retrievePublicKeyFromSharedPreferences(
-        sharedPreferences
-    )
+    if (sharedPreferences.contains("privatekey"))
+        retrievePublicKeyFromSharedPreferences(sharedPreferences) ?: newUser(sharedPreferences)
     else newUser(sharedPreferences)
 
 fun getFingerprint(sharedPreferences: SharedPreferences) =
