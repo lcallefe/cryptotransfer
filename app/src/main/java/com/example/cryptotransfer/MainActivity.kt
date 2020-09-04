@@ -19,12 +19,45 @@
 
 package com.example.cryptotransfer
 
+import android.content.Intent
 import android.os.Bundle
+import android.provider.OpenableColumns
+import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.cryptotransfer.user.getFingerprint
+import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
+    private val requestCode = Random.nextInt(65536)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        findViewById<TextView>(R.id.PublicKey).text = getFingerprint(getPreferences(MODE_PRIVATE))
+        findViewById<Button>(R.id.Send).setOnClickListener {
+            startActivityForResult(
+                Intent.createChooser(
+                    Intent().setType("*/*").setAction(Intent.ACTION_GET_CONTENT),
+                    "Selecione o arquivo"
+                ), requestCode
+            )
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == requestCode && resultCode == RESULT_OK) {
+            contentResolver.query(data!!.data!!, null, null, null, null, null)?.use {
+                if (it.moveToFirst()) {
+                    findViewById<TextView>(R.id.DebugFileName).text =
+                        it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+
+                    val sizeIndex: Int = it.getColumnIndex(OpenableColumns.SIZE)
+                    findViewById<TextView>(R.id.DebugFileSize).text =
+                        if (!it.isNull(sizeIndex)) it.getString(sizeIndex) else "Desconhecido"
+                }
+            }
+        }
     }
 }
