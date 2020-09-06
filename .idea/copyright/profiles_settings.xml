@@ -1,7 +1,3 @@
 <component name="CopyrightManager">
-  <settings>
-    <module2copyright>
-      <element module="All" copyright="GNU General Public License" />
-    </module2copyright>
-  </settings>
+  <settings default="Crypto Transfer GNU GPL" />
 </component>

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.example.cryptotransfer
+package br.gov.sp.fatec.cryptotransfer
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

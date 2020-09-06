@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.example.cryptotransfer
+package br.gov.sp.fatec.cryptotransfer
 
 import android.content.Intent
 import android.os.Bundle
@@ -25,7 +25,7 @@ import android.provider.OpenableColumns
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.example.cryptotransfer.user.getFingerprint
+import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        findViewById<TextView>(R.id.PublicKey).text = getFingerprint(getPreferences(MODE_PRIVATE))
+        findViewById<TextView>(R.id.PublicKey).text = getFingerprint(this)
         findViewById<Button>(R.id.Send).setOnClickListener {
             startActivityForResult(
                 Intent.createChooser(
