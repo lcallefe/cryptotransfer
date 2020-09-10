@@ -44,19 +44,19 @@ class PinActivity : AppCompatActivity() {
                         0 -> {
                             pin = newPin
                             s.clear()
-                            pinEditText.hint = "Confirme o pin inserido"
+                            pinEditText.hint = getString(R.string.confirm_pin)
                         }
                         newPin -> {
                             User.setPin(newPin)
-                            Toast.makeText(context,"PIN inserido com sucesso", LENGTH_LONG).show()
+                            Toast.makeText(context,getString(R.string.pin_created), LENGTH_LONG).show()
                             startActivity(Intent(context,MainActivity::class.java))
                         }
                         else -> {
-                            pinEditText.hint = "Digite um PIN de seis dígitos"
+                            pinEditText.hint = getString(R.string.create_pin)
                             s.clear()
                             Toast.makeText(
                                 context,
-                                "PIN incorreto, tente novamente!",
+                                getString(R.string.wrong_pin),
                                 LENGTH_LONG
                             ).show()
                             pin = 0

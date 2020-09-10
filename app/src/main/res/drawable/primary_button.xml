@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Crypto Transfer is a file transfer application that uses encryption.
   ~ Copyright (c) 2020  Juliana Tacacima, Luciana Callefe Donadio,
@@ -17,13 +18,8 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<resources>
-    <string name="app_name">Crypto Transfer</string>
-    <string name="select_file">Selecionar arquivo</string>
-    <string name="insert_receiver">Digite o ID de outro usário</string>
-    <string name="sender_id">Seu ID:</string>
-    <string name="confirm_pin">Confirme o pin inserido</string>
-    <string name="create_pin">Digite um PIN de seis dígitos</string>
-    <string name="wrong_pin">PIN incorreto, tente novamente!</string>
-    <string name="pin_created">PIN inserido com sucesso</string>
-</resources>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    android:shape="rectangle" android:padding="15dp">
+    <solid android:color="@color/colorPrimary"/>
+    <corners android:radius="15dp"/>
+</shape>
