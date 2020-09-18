@@ -19,13 +19,19 @@
 
 package br.gov.sp.fatec.cryptotransfer
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.text.Editable
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
@@ -34,7 +40,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        findViewById<TextView>(R.id.PublicKey).text = getFingerprint(this)
+
+        findViewById<TextView>(R.id.SenderUserId).text = getFingerprint(this)
+
+        ButtonCopy.setOnClickListener { copyTextToClipboard(getFingerprint(this).toString()) }
+        ButtonPaste.setOnClickListener { pasteTextFromClipboard() }
+
         findViewById<Button>(R.id.Send).setOnClickListener {
             startActivityForResult(
                 Intent.createChooser(
@@ -59,5 +70,20 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun copyTextToClipboard(textToCopy: String) {
+//        val textToCopy = SenderUserId.text
+
+        val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip: ClipData = ClipData.newPlainText("sender", textToCopy)
+        clipboardManager.setPrimaryClip(clip)
+
+        Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_LONG).show()
+    }
+
+    private fun pasteTextFromClipboard() {
+        val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        ReceiverUserId.setText(clipboardManager.primaryClip?.getItemAt(0)?.text.toString().trim())
     }
 }
