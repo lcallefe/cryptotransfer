@@ -43,8 +43,12 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.SenderUserId).text = getFingerprint(this)
 
-        ButtonCopy.setOnClickListener { copyTextToClipboard(getFingerprint(this).toString()) }
-        ButtonPaste.setOnClickListener { pasteTextFromClipboard() }
+        ButtonCopy.setOnClickListener {
+            copyTextToClipboard(getFingerprint(this).toString())
+        }
+        ButtonPaste.setOnClickListener {
+            pasteTextFromClipboard()
+        }
 
         findViewById<Button>(R.id.Send).setOnClickListener {
             startActivityForResult(
@@ -73,17 +77,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun copyTextToClipboard(textToCopy: String) {
-//        val textToCopy = SenderUserId.text
-
         val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip: ClipData = ClipData.newPlainText("sender", textToCopy)
-        clipboardManager.setPrimaryClip(clip)
+        clipboardManager.setPrimaryClip(
+            ClipData.newPlainText("sender", textToCopy)
+        )
 
         Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_LONG).show()
     }
 
     private fun pasteTextFromClipboard() {
         val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        ReceiverUserId.setText(clipboardManager.primaryClip?.getItemAt(0)?.text.toString().trim())
+        ReceiverUserId.setText(
+            clipboardManager.primaryClip?.getItemAt(0)?.text.toString().trim()
+        )
     }
 }
