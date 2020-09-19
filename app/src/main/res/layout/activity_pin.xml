@@ -18,11 +18,17 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".PinActivity">
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context=".PinActivity">
+
+    <Button
+        android:id="@+id/DeleteAccount"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Excluir sua conta e redefinir pin"/>
 
     <EditText
         android:id="@+id/pin"
@@ -31,6 +37,6 @@
         android:hint="Digite um PIN de seis dígitos"
         android:inputType="numberPassword"
         android:maxLength="6"
-        android:textAlignment="center" />
+        android:textAlignment="center"/>
 
 </LinearLayout>

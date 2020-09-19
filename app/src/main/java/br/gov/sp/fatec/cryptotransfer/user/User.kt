@@ -81,6 +81,8 @@ fun getFingerprint(context: Context): String? {
     else return fingerprint(encoder.decode(s))
 }
 
+fun isSet(context: Context) = !retrievePublicKeyFromSharedPreferences(context).isNullOrBlank()
+
 class User {
     companion object {
         private var PIN = 0

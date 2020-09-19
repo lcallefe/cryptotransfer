@@ -23,13 +23,21 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.View.GONE
+import android.view.View.VISIBLE
+import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
 import br.gov.sp.fatec.cryptotransfer.user.User
+import br.gov.sp.fatec.cryptotransfer.user.can
+import br.gov.sp.fatec.cryptotransfer.user.delete
+import br.gov.sp.fatec.cryptotransfer.user.wrongPin
+
 
 class PinActivity : AppCompatActivity() {
+    lateinit var deleteAccount: Button
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pin)
@@ -48,10 +56,11 @@ class PinActivity : AppCompatActivity() {
                         }
                         newPin -> {
                             User.setPin(newPin)
-                            Toast.makeText(context,getString(R.string.pin_created), LENGTH_LONG).show()
-                            startActivity(Intent(context,MainActivity::class.java))
+                            Toast.makeText(context, getString(R.string.pin_created), LENGTH_LONG).show()
+                            startActivity(Intent(context, MainActivity::class.java))
                         }
                         else -> {
+                            wrongPin(context)
                             pinEditText.hint = getString(R.string.create_pin)
                             s.clear()
                             Toast.makeText(
@@ -68,5 +77,30 @@ class PinActivity : AppCompatActivity() {
             override fun beforeTextChanged(p0: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
         })
+        deleteAccount = findViewById(R.id.DeleteAccount)
+        deleteAccount.setOnClickListener { delete(context) }
+    }
+
+    private fun minutesFormatter(minutes: Short): String {
+        val days = minutes.div(24 * 60)
+        var remaining = minutes - days * 24 * 60
+        val hours = remaining.div(60)
+        remaining -= hours * 60
+        var formatted = ""
+        if (days > 0) formatted += days.toString() + "d "
+        if (hours > 0) formatted += hours.toString() + "h "
+        if (remaining > 0) formatted += remaining.toString() + "m"
+        return formatted
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val can = can(this)
+        deleteAccount.isEnabled = can == 0.toShort()
+        if (can < 0) deleteAccount.visibility = GONE
+        else deleteAccount.visibility = VISIBLE
+        if (can > 0) deleteAccount.text =
+            "Excluir sua conta e redefinir pin" + System.getProperty("line.separator") + "Aguarde " +
+                    minutesFormatter(can)
     }
 }
