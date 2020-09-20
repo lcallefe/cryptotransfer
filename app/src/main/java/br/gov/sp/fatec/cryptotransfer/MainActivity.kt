@@ -25,17 +25,19 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.provider.OpenableColumns
-import android.text.Editable
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import br.gov.sp.fatec.cryptotransfer.file.debugUpload
 import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
     private val requestCode = Random.nextInt(65536)
+    lateinit var receiver: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,19 +60,24 @@ class MainActivity : AppCompatActivity() {
                 ), requestCode
             )
         }
+
+        receiver = findViewById(R.id.ReceiverUserId)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == requestCode && resultCode == RESULT_OK) {
-            contentResolver.query(data!!.data!!, null, null, null, null, null)?.use {
+        if (requestCode == requestCode && resultCode == RESULT_OK && data != null && data.data != null && receiver.text != null) {
+            contentResolver.query(data.data!!, null, null, null, null, null)?.use {
                 if (it.moveToFirst()) {
+                    val name = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
                     findViewById<TextView>(R.id.DebugFileName).text =
-                        it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+                        name
 
                     val sizeIndex: Int = it.getColumnIndex(OpenableColumns.SIZE)
                     findViewById<TextView>(R.id.DebugFileSize).text =
                         if (!it.isNull(sizeIndex)) it.getString(sizeIndex) else "Desconhecido"
+
+                    debugUpload(this, receiver.text.toString(), data.data!!, name)
                 }
             }
         }
