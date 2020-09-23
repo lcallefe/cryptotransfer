@@ -30,11 +30,14 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.nio.ByteBuffer
 import java.security.KeyPairGenerator
 import java.security.MessageDigest
+import java.util.function.Function
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 private val encoder = base16()
+
+private fun firestore(collection: String) = FirebaseFirestore.getInstance().collection(collection)
 
 private fun fingerprint(bytes: ByteArray): String {
     val md = MessageDigest.getInstance("MD5")
@@ -63,7 +66,7 @@ private fun newUser(context: Context): String? {
             putString("publickey", encoder.encode(pub))
             commit()
         }
-        FirebaseFirestore.getInstance().collection("user").document(fingerprint(pub))
+        firestore("user").document(fingerprint(pub))
             .set(mapOf("publickey" to pubEncoded))
         return pubEncoded
     }
@@ -77,11 +80,23 @@ fun getPublicKeyAsString(context: Context) =
 
 fun getFingerprint(context: Context): String? {
     val s = getPublicKeyAsString(context)
-    if (s == null) return s
-    else return fingerprint(encoder.decode(s))
+    return if (s == null) s
+    else fingerprint(encoder.decode(s))
 }
 
 fun isSet(context: Context) = !retrievePublicKeyFromSharedPreferences(context).isNullOrBlank()
+
+fun <U> retrievePublicKey(fingerprint: String, success: Function<String, U>, failure: Function<Exception, U>) {
+    firestore("user").document(fingerprint).get()
+        .addOnSuccessListener { document ->
+            val pub = document.get("publickey") as String?
+            if (pub == null)
+                failure.apply(NullPointerException())
+            else
+                success.apply(pub)
+        }
+        .addOnFailureListener { exception -> failure.apply(exception) }
+}
 
 class User {
     companion object {

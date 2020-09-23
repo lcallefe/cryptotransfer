@@ -21,11 +21,30 @@ package br.gov.sp.fatec.cryptotransfer.file
 
 import android.content.Context
 import android.net.Uri
+import android.widget.Toast
+import android.widget.Toast.LENGTH_LONG
 import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
+import br.gov.sp.fatec.cryptotransfer.user.retrievePublicKey
+import com.google.common.io.BaseEncoding.base16
 import com.google.firebase.storage.FirebaseStorage
+import java.security.KeyFactory
+import java.security.spec.X509EncodedKeySpec
+import javax.crypto.Cipher
+import javax.crypto.Cipher.ENCRYPT_MODE
 
-fun debugUpload(context: Context, recipient: String, uri: Uri, name: String) {
-    FirebaseStorage.getInstance()
-        .getReference(recipient + "/" + getFingerprint(context) + "/" + System.currentTimeMillis() + "/" + name)
-        .putFile(uri)
-}
+fun debugUpload(context: Context, recipient: String, uri: Uri, name: String) =
+    retrievePublicKey(recipient, {
+        val stream = context.contentResolver.openInputStream(uri)
+        if (stream == null)
+            Toast.makeText(context, "Arquivo inválido", LENGTH_LONG).show()
+        else {
+            val cipher = Cipher.getInstance("RSA")
+            cipher.init(
+                ENCRYPT_MODE,
+                KeyFactory.getInstance("RSA").generatePublic(X509EncodedKeySpec(base16().decode(it)))
+            )
+            FirebaseStorage.getInstance()
+                .getReference(recipient + "/" + getFingerprint(context) + "/" + System.currentTimeMillis() + "/" + name)
+                .putBytes(cipher.doFinal(stream.readBytes()))
+        }
+    }, { Toast.makeText(context, "Destinatário inválido", LENGTH_LONG).show() })
