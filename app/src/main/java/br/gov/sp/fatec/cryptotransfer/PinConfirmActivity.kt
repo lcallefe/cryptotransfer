@@ -19,7 +19,6 @@
 
 package br.gov.sp.fatec.cryptotransfer
 
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -27,50 +26,24 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.widget.Button
 import android.widget.EditText
-import android.widget.Toast
-import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.app.AppCompatActivity
-import br.gov.sp.fatec.cryptotransfer.user.User
+import br.gov.sp.fatec.cryptotransfer.user.User.Companion.setPin
+import br.gov.sp.fatec.cryptotransfer.user.User.Companion.waitPin
 import br.gov.sp.fatec.cryptotransfer.user.can
 import br.gov.sp.fatec.cryptotransfer.user.delete
-import br.gov.sp.fatec.cryptotransfer.user.wrongPin
 
-
-class PinActivity : AppCompatActivity() {
+class PinConfirmActivity : AppCompatActivity() {
     lateinit var deleteAccount: Button
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_pin)
+        waitPin(this, false) { this.finish() }
+        setContentView(R.layout.activity_pin_confirm)
         val context = this
-        var pin = 0
         val pinEditText = findViewById<EditText>(R.id.pin)
         pinEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
                 if (s.length == 6) {
-                    val newPin = s.toString().toInt()
-                    when (pin) {
-                        0 -> {
-                            pin = newPin
-                            s.clear()
-                            pinEditText.hint = getString(R.string.confirm_pin)
-                        }
-                        newPin -> {
-                            User.setPin(newPin)
-                            Toast.makeText(context, getString(R.string.pin_created), LENGTH_LONG).show()
-                            startActivity(Intent(context, MainActivity::class.java))
-                        }
-                        else -> {
-                            wrongPin(context)
-                            pinEditText.hint = getString(R.string.create_pin)
-                            s.clear()
-                            Toast.makeText(
-                                context,
-                                getString(R.string.wrong_pin),
-                                LENGTH_LONG
-                            ).show()
-                            pin = 0
-                        }
-                    }
+                    setPin(s.toString().toInt())
                 }
             }
 

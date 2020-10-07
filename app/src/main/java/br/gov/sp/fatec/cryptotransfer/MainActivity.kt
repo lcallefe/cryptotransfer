@@ -19,10 +19,15 @@
 
 package br.gov.sp.fatec.cryptotransfer
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.NotificationManager.IMPORTANCE_DEFAULT
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.Intent.ACTION_GET_CONTENT
+import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.widget.Button
@@ -31,22 +36,25 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import br.gov.sp.fatec.cryptotransfer.file.debugUpload
+import br.gov.sp.fatec.cryptotransfer.file.watch
 import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlin.random.Random
+import kotlin.random.Random.Default.nextInt
 
 class MainActivity : AppCompatActivity() {
-    private val requestCode = Random.nextInt(65536)
+    private val requestCode = nextInt(65536)
     lateinit var receiver: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        createNotificationChannel()
 
-        findViewById<TextView>(R.id.SenderUserId).text = getFingerprint(this)
-
-        ButtonCopy.setOnClickListener {
-            copyTextToClipboard(getFingerprint(this).toString())
+        getFingerprint(this) { fingerprint ->
+            findViewById<TextView>(R.id.SenderUserId).text = fingerprint
+            ButtonCopy.setOnClickListener {
+                copyTextToClipboard(fingerprint)
+            }
         }
         ButtonPaste.setOnClickListener {
             pasteTextFromClipboard()
@@ -55,7 +63,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.Send).setOnClickListener {
             startActivityForResult(
                 Intent.createChooser(
-                    Intent().setType("*/*").setAction(Intent.ACTION_GET_CONTENT),
+                    Intent().setType("*/*").setAction(ACTION_GET_CONTENT),
                     "Selecione o arquivo"
                 ), requestCode
             )
@@ -64,20 +72,27 @@ class MainActivity : AppCompatActivity() {
         receiver = findViewById(R.id.ReceiverUserId)
     }
 
+    override fun onResume() {
+        super.onResume()
+        watch(this)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == requestCode && resultCode == RESULT_OK && data != null && data.data != null && receiver.text != null) {
-            contentResolver.query(data.data!!, null, null, null, null, null)?.use {
-                if (it.moveToFirst()) {
-                    val name = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
-                    findViewById<TextView>(R.id.DebugFileName).text =
-                        name
+        if (requestCode == this.requestCode && resultCode == RESULT_OK && data != null && receiver.text != null) {
+            val uri = data.data
+            if (uri != null) {
+                contentResolver.query(uri, null, null, null, null, null)?.use {
+                    if (it.moveToFirst()) {
+                        val name = it.getString(it.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+                        findViewById<TextView>(R.id.DebugFileName).text = name
 
-                    val sizeIndex: Int = it.getColumnIndex(OpenableColumns.SIZE)
-                    findViewById<TextView>(R.id.DebugFileSize).text =
-                        if (!it.isNull(sizeIndex)) it.getString(sizeIndex) else "Desconhecido"
+                        val sizeIndex: Int = it.getColumnIndex(OpenableColumns.SIZE)
+                        findViewById<TextView>(R.id.DebugFileSize).text =
+                            if (!it.isNull(sizeIndex)) it.getString(sizeIndex) else "Desconhecido"
 
-                    debugUpload(this, receiver.text.toString(), data.data!!, name)
+                        debugUpload(this, receiver.text.toString(), uri, name, contentResolver.getType(uri)!!)
+                    }
                 }
             }
         }
@@ -97,5 +112,15 @@ class MainActivity : AppCompatActivity() {
         ReceiverUserId.setText(
             clipboardManager.primaryClip?.getItemAt(0)?.text.toString().trim()
         )
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.createNotificationChannel(
+                NotificationChannel("Transferência de arquivo", "Transferência de arquivo", IMPORTANCE_DEFAULT).apply {
+                    description = "Transferência de arquivo"
+                })
+        }
     }
 }

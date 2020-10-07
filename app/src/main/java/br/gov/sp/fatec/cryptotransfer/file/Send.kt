@@ -21,30 +21,64 @@ package br.gov.sp.fatec.cryptotransfer.file
 
 import android.content.Context
 import android.net.Uri
-import android.widget.Toast
-import android.widget.Toast.LENGTH_LONG
 import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
 import br.gov.sp.fatec.cryptotransfer.user.retrievePublicKey
+import br.gov.sp.fatec.cryptotransfer.util.notify
 import com.google.common.io.BaseEncoding.base16
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.security.KeyFactory
 import java.security.spec.X509EncodedKeySpec
 import javax.crypto.Cipher
 import javax.crypto.Cipher.ENCRYPT_MODE
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
+import kotlin.random.Random
 
-fun debugUpload(context: Context, recipient: String, uri: Uri, name: String) =
-    retrievePublicKey(recipient, {
+val encoder = base16()
+
+fun debugUpload(context: Context, receiver: String, uri: Uri, name: String, mimeType: String) {
+    val notification = Random.nextInt()
+    notify(context, notification, "Envio de arquivo", "Preparando envio")
+    retrievePublicKey(receiver, {
         val stream = context.contentResolver.openInputStream(uri)
         if (stream == null)
-            Toast.makeText(context, "Arquivo inválido", LENGTH_LONG).show()
+            notify(context, notification, "Falha ao enviar arquivo", "Arquivo inválido")
         else {
-            val cipher = Cipher.getInstance("RSA")
-            cipher.init(
+            val rsa = Cipher.getInstance("RSA")
+            rsa.init(
                 ENCRYPT_MODE,
                 KeyFactory.getInstance("RSA").generatePublic(X509EncodedKeySpec(base16().decode(it)))
             )
-            FirebaseStorage.getInstance()
-                .getReference(recipient + "/" + getFingerprint(context) + "/" + System.currentTimeMillis() + "/" + name)
-                .putBytes(cipher.doFinal(stream.readBytes()))
+            val secret = Random.nextBytes(32)
+            val iv = Random.nextBytes(16)
+            val aes = Cipher.getInstance("AES/CBC/PKCS5Padding")
+            aes.init(
+                ENCRYPT_MODE,
+                SecretKeySpec(secret, "AES"),
+                IvParameterSpec(iv)
+            )
+            val time = System.currentTimeMillis()
+            getFingerprint(context) {
+                notify(context, notification, "Envio de arquivo", "Enviando arquivo")
+                FirebaseFirestore.getInstance().collection("transfer").add(
+                    mapOf(
+                        "key" to mapOf(
+                            "secret" to encoder.encode(rsa.doFinal(secret)),
+                            "iv" to encoder.encode(rsa.doFinal(iv))
+                        ),
+                        "time" to time,
+                        "name" to encoder.encode(rsa.doFinal(name.toByteArray())),
+                        "receiver" to receiver,
+                        "sender" to it,
+                        "mimeType" to mimeType
+                    )
+                )
+                FirebaseStorage.getInstance()
+                    .getReference("$receiver/$it/$time")
+                    .putBytes(aes.doFinal(stream.readBytes()))
+                notify(context, notification, "Arquivo enviado", "Arquivo enviado com sucesso")
+            }
         }
-    }, { Toast.makeText(context, "Destinatário inválido", LENGTH_LONG).show() })
+    }) { notify(context, notification, "Falha ao enviar arquivo", "Destinatário inválido") }
+}

@@ -22,13 +22,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-              tools:context=".PinActivity">
-
-    <Button
-        android:id="@+id/DeleteAccount"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:text="Excluir sua conta e redefinir pin"/>
+              tools:context=".PinCreateActivity">
 
     <EditText
         android:id="@+id/pin"
