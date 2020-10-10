@@ -27,6 +27,8 @@ import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
 import br.gov.sp.fatec.cryptotransfer.util.notify
 import com.google.common.io.BaseEncoding
 import com.google.firebase.storage.FirebaseStorage
+import java.io.ByteArrayInputStream
+import java.util.zip.GZIPInputStream
 import javax.crypto.Cipher
 import javax.crypto.Cipher.DECRYPT_MODE
 import javax.crypto.spec.IvParameterSpec
@@ -79,8 +81,19 @@ class ReceiverActivity : AppCompatActivity() {
                                     SecretKeySpec(encoder.decode(secret), "AES"),
                                     IvParameterSpec(encoder.decode(iv))
                                 )
-                                stream.write(cipher.doFinal(it))
-                                notify(this, id, "Arquivo salvo", archive + " foi salvo")
+                                val gzip = GZIPInputStream(ByteArrayInputStream(it))
+                                val bytes = ByteArray(10 * 1024 * 1024)
+                                var length = 0
+                                while (true) {
+                                    val read = gzip.read()
+                                    if (read >= 0) {
+                                        bytes[length] = read.toByte()
+                                        length++
+                                    } else break
+                                }
+                                gzip.close()
+                                stream.write(cipher.doFinal(bytes, 0, length))
+                                notify(this, id, "Arquivo salvo", "$archive foi salvo")
                             }
                             this.finish()
                         }

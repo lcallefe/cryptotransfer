@@ -27,8 +27,10 @@ import br.gov.sp.fatec.cryptotransfer.util.notify
 import com.google.common.io.BaseEncoding.base16
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import java.io.ByteArrayOutputStream
 import java.security.KeyFactory
 import java.security.spec.X509EncodedKeySpec
+import java.util.zip.GZIPOutputStream
 import javax.crypto.Cipher
 import javax.crypto.Cipher.ENCRYPT_MODE
 import javax.crypto.spec.IvParameterSpec
@@ -74,9 +76,14 @@ fun debugUpload(context: Context, receiver: String, uri: Uri, name: String, mime
                         "mimeType" to mimeType
                     )
                 )
+                val bytes = ByteArrayOutputStream()
+                val gzip = GZIPOutputStream(bytes)
+                gzip.write(aes.doFinal(stream.readBytes()))
+                gzip.close()
                 FirebaseStorage.getInstance()
                     .getReference("$receiver/$it/$time")
-                    .putBytes(aes.doFinal(stream.readBytes()))
+                    .putBytes(bytes.toByteArray())
+                bytes.close()
                 notify(context, notification, "Arquivo enviado", "Arquivo enviado com sucesso")
             }
         }
