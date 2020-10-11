@@ -71,8 +71,7 @@ private fun newUser(context: Context, function: Function<String, Unit>) {
             putString("publickey", encoder.encode(pub))
             commit()
         }
-        firestore().document(fingerprint(pub))
-            .set(mapOf("publickey" to pubEncoded))
+        firestore().document(fingerprint(pub)).set(mapOf("publickey" to pubEncoded))
         function.apply(pubEncoded)
     }
 }
@@ -122,6 +121,15 @@ fun decrypt(context: Context, encoded: String, function: Function<ByteArray, Uni
     }
 }
 
+fun sign(context: Context, bytes: ByteArray, function: Function<ByteArray, Unit>) {
+    retrievePrivateKeyFromSharedPreferences(context) {
+        val sig = Signature.getInstance("SHA512withRSA")
+        sig.initSign(it)
+        sig.update(bytes)
+        function.apply(sig.sign())
+    }
+}
+
 fun getPublicKeyAsString(context: Context, function: Function<String, Unit>) {
     val preferences = retrievePublicKeyFromSharedPreferences(context)
     if (preferences.isNullOrBlank())
@@ -139,10 +147,8 @@ fun <U> retrievePublicKey(fingerprint: String, success: Function<String, U>, fai
     firestore().document(fingerprint).get()
         .addOnSuccessListener {
             val pub = it.get("publickey") as String?
-            if (pub == null)
-                failure.apply(NullPointerException())
-            else
-                success.apply(pub)
+            if (pub == null) failure.apply(NullPointerException())
+            else success.apply(pub)
         }
         .addOnFailureListener { failure.apply(it) }
 }

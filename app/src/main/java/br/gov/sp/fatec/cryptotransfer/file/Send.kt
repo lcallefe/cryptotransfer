@@ -23,13 +23,13 @@ import android.content.Context
 import android.net.Uri
 import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
 import br.gov.sp.fatec.cryptotransfer.user.retrievePublicKey
+import br.gov.sp.fatec.cryptotransfer.user.sign
 import br.gov.sp.fatec.cryptotransfer.util.notify
 import com.google.common.io.BaseEncoding.base16
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayOutputStream
 import java.security.KeyFactory
-import java.security.MessageDigest
 import java.security.spec.X509EncodedKeySpec
 import java.util.zip.GZIPOutputStream
 import javax.crypto.Cipher
@@ -43,15 +43,15 @@ val encoder = base16()
 fun debugUpload(context: Context, receiver: String, uri: Uri, name: String, mimeType: String) {
     val notification = Random.nextInt()
     notify(context, notification, "Envio de arquivo", "Preparando envio")
-    retrievePublicKey(receiver, {
-        val stream = context.contentResolver.openInputStream(uri)
-        if (stream == null)
-            notify(context, notification, "Falha ao enviar arquivo", "Arquivo inválido")
-        else {
+    val stream = context.contentResolver.openInputStream(uri)
+    if (stream == null)
+        notify(context, notification, "Falha ao enviar arquivo", "Arquivo inválido")
+    else {
+        retrievePublicKey(receiver, {
             val rsa = Cipher.getInstance("RSA")
             rsa.init(
                 ENCRYPT_MODE,
-                KeyFactory.getInstance("RSA").generatePublic(X509EncodedKeySpec(base16().decode(it)))
+                KeyFactory.getInstance("RSA").generatePublic(X509EncodedKeySpec(encoder.decode(it)))
             )
             val secret = Random.nextBytes(32)
             val iv = Random.nextBytes(16)
@@ -62,38 +62,45 @@ fun debugUpload(context: Context, receiver: String, uri: Uri, name: String, mime
                 IvParameterSpec(iv)
             )
             val time = System.currentTimeMillis()
-            getFingerprint(context) {
-                notify(context, notification, "Envio de arquivo", "Enviando arquivo")
-                val bytes = stream.readBytes()
-                try {
-                    val hash = MessageDigest.getInstance("SHA-512").digest(bytes)
-                    FirebaseFirestore.getInstance().collection("transfer").add(
-                        mapOf(
-                            "key" to mapOf(
-                                "secret" to encoder.encode(rsa.doFinal(secret)),
-                                "iv" to encoder.encode(rsa.doFinal(iv))
-                            ),
-                            "time" to time,
-                            "name" to encoder.encode(rsa.doFinal(name.toByteArray())),
-                            "receiver" to receiver,
-                            "sender" to it,
-                            "mimeType" to encoder.encode(rsa.doFinal(mimeType.toByteArray())),
-                            "hash" to encoder.encode(rsa.doFinal(hash))
+            val bytes = stream.readBytes()
+            val byteStream = ByteArrayOutputStream()
+            val gzip = GZIPOutputStream(byteStream)
+            gzip.write(aes.doFinal(bytes))
+            gzip.close()
+            sign(context, bytes) {
+                val signature = encoder.encode(it)
+                getFingerprint(context) {
+                    notify(context, notification, "Envio de arquivo", "Enviando arquivo")
+                    try {
+                        FirebaseFirestore.getInstance().collection("transfer").add(
+                            mapOf(
+                                "key" to mapOf(
+                                    "secret" to encoder.encode(rsa.doFinal(secret)),
+                                    "iv" to encoder.encode(rsa.doFinal(iv))
+                                ),
+                                "time" to time,
+                                "name" to encoder.encode(rsa.doFinal(name.toByteArray())),
+                                "receiver" to receiver,
+                                "sender" to it,
+                                "mimeType" to encoder.encode(rsa.doFinal(mimeType.toByteArray())),
+                                "signature" to signature
+                            )
                         )
-                    )
-                    val byteStream = ByteArrayOutputStream()
-                    val gzip = GZIPOutputStream(byteStream)
-                    gzip.write(aes.doFinal(bytes))
-                    gzip.close()
-                    FirebaseStorage.getInstance()
-                        .getReference("$receiver/$it/$time")
-                        .putBytes(byteStream.toByteArray())
-                    byteStream.close()
-                    notify(context, notification, "Arquivo enviado", "Arquivo enviado com sucesso")
-                } catch (ignored: OutOfMemoryError) {
-                    notify(context, notification, "Falha ao enviar arquivo", "A memória do dispositivo foi esgotada")
+                        FirebaseStorage.getInstance()
+                            .getReference("$receiver/$it/$time")
+                            .putBytes(byteStream.toByteArray())
+                        byteStream.close()
+                        notify(context, notification, "Arquivo enviado", "Arquivo enviado com sucesso")
+                    } catch (ignored: OutOfMemoryError) {
+                        notify(
+                            context,
+                            notification,
+                            "Falha ao enviar arquivo",
+                            "A memória do dispositivo foi esgotada"
+                        )
+                    }
                 }
             }
-        }
-    }) { notify(context, notification, "Falha ao enviar arquivo", "Destinatário inválido") }
+        }) { notify(context, notification, "Falha ao enviar arquivo", "Destinatário inválido") }
+    }
 }

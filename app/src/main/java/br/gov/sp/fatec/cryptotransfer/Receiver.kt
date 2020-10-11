@@ -48,7 +48,7 @@ class Receiver : BroadcastReceiver() {
                     .putExtra("secret", intent.getStringExtra("secret"))
                     .putExtra("time", intent.getLongExtra("time", 0))
                     .putExtra("mimeType", intent.getStringExtra("mimeType"))
-                    .putExtra("hash", intent.getStringExtra("hash"))
+                    .putExtra("signature", intent.getStringExtra("signature"))
             )
         } else if (action.startsWith("Excluir todos")) {
             getFingerprint(context) {

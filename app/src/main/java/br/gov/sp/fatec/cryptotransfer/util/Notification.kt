@@ -86,7 +86,7 @@ fun notify(
     secret: String,
     time: Long,
     mimeType: String,
-    hash: String
+    signature: String
 ) {
     with(NotificationManagerCompat.from(context)) {
         notify(
@@ -109,7 +109,7 @@ fun notify(
                             putExtra("secret", secret)
                             putExtra("time", time)
                             putExtra("mimeType", mimeType)
-                            putExtra("hash", hash)
+                            putExtra("signature", signature)
                         },
                         0
                     )

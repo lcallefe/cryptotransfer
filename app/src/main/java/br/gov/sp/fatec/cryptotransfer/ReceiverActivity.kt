@@ -24,11 +24,14 @@ import android.content.Intent.ACTION_CREATE_DOCUMENT
 import android.content.Intent.EXTRA_TITLE
 import androidx.appcompat.app.AppCompatActivity
 import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
+import br.gov.sp.fatec.cryptotransfer.user.retrievePublicKey
 import br.gov.sp.fatec.cryptotransfer.util.notify
 import com.google.common.io.BaseEncoding
 import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayInputStream
-import java.security.MessageDigest
+import java.security.KeyFactory
+import java.security.Signature
+import java.security.spec.X509EncodedKeySpec
 import java.util.zip.GZIPInputStream
 import javax.crypto.Cipher
 import javax.crypto.Cipher.DECRYPT_MODE
@@ -47,7 +50,7 @@ class ReceiverActivity : AppCompatActivity() {
     private lateinit var secret: String
     private lateinit var archive: String
     private lateinit var mimeType: String
-    private lateinit var hash: String
+    private lateinit var signature: String
     private var asked = false
 
     override fun onStart() {
@@ -61,7 +64,7 @@ class ReceiverActivity : AppCompatActivity() {
             archive = intent.getStringExtra("archive")!!
             time = intent.getLongExtra("time", 0)
             mimeType = intent.getStringExtra("mimeType")!!
-            hash = intent.getStringExtra("hash")!!
+            signature = intent.getStringExtra("signature")!!
             startActivityForResult(
                 Intent(ACTION_CREATE_DOCUMENT).setType(mimeType)
                     .putExtra(EXTRA_TITLE, archive), requestCode
@@ -96,13 +99,19 @@ class ReceiverActivity : AppCompatActivity() {
                                 }
                                 gzip.close()
                                 val final = cipher.doFinal(bytes, 0, length)
-                                if (encoder.decode(hash)
-                                        .contentEquals(MessageDigest.getInstance("SHA-512").digest(final))
-                                ) {
-                                    stream.write(final)
-                                    child.delete()
-                                    notify(this, id, "Arquivo salvo", "$archive foi salvo")
-                                } else notify(this, id, "Arquivo corrompido", "O arquivo foi corrompido")
+                                retrievePublicKey(sender, {
+                                    val sig = Signature.getInstance("SHA512withRSA")
+                                    sig.initVerify(
+                                        KeyFactory.getInstance("RSA")
+                                            .generatePublic(X509EncodedKeySpec(encoder.decode(it)))
+                                    )
+                                    sig.update(final)
+                                    if (sig.verify(encoder.decode(signature))) {
+                                        stream.write(final)
+                                        child.delete()
+                                        notify(this, id, "Arquivo salvo", "$archive foi salvo")
+                                    } else notify(this, id, "Arquivo corrompido", "O arquivo foi corrompido")
+                                }) { notify(this, id, "Arquivo corrompido", "O arquivo foi corrompido") }
                             }
                             this.finish()
                         }
