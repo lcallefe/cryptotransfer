@@ -122,6 +122,7 @@ fun notify(
                         putExtra("id", id)
                         putExtra("sender", sender)
                         putExtra("archive", archive)
+                        putExtra("time", time)
                     }, 0)
                 ).build()
         )

@@ -77,34 +77,35 @@ class ReceiverActivity : AppCompatActivity() {
                 val uri = data.data
                 if (uri != null) {
                     getFingerprint(this) {
-                        FirebaseStorage.getInstance().reference
-                            .child("$it/$sender/$time").getBytes(MAXSIZEBYTES.toLong()).addOnSuccessListener {
-                                val stream = contentResolver.openOutputStream(uri)
-                                if (stream != null) {
-                                    val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-                                    cipher.init(
-                                        DECRYPT_MODE,
-                                        SecretKeySpec(encoder.decode(secret), "AES"),
-                                        IvParameterSpec(encoder.decode(iv))
-                                    )
-                                    val gzip = GZIPInputStream(ByteArrayInputStream(it))
-                                    val bytes = ByteArray(MAXSIZEBYTES)
-                                    var length = 0
-                                    while (true) {
-                                        val read = gzip.read()
-                                        if (read >= 0) bytes[length++] = read.toByte() else break
-                                    }
-                                    gzip.close()
-                                    val final = cipher.doFinal(bytes, 0, length)
-                                    if (encoder.decode(hash)
-                                            .contentEquals(MessageDigest.getInstance("SHA-512").digest(final))
-                                    ) {
-                                        stream.write(final)
-                                        notify(this, id, "Arquivo salvo", "$archive foi salvo")
-                                    } else notify(this, id, "Arquivo corrompido", "O arquivo foi corrompido")
+                        val child = FirebaseStorage.getInstance().reference.child("$it/$sender/$time")
+                        child.getBytes(MAXSIZEBYTES.toLong()).addOnSuccessListener {
+                            val stream = contentResolver.openOutputStream(uri)
+                            if (stream != null) {
+                                val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+                                cipher.init(
+                                    DECRYPT_MODE,
+                                    SecretKeySpec(encoder.decode(secret), "AES"),
+                                    IvParameterSpec(encoder.decode(iv))
+                                )
+                                val gzip = GZIPInputStream(ByteArrayInputStream(it))
+                                val bytes = ByteArray(MAXSIZEBYTES)
+                                var length = 0
+                                while (true) {
+                                    val read = gzip.read()
+                                    if (read >= 0) bytes[length++] = read.toByte() else break
                                 }
-                                this.finish()
+                                gzip.close()
+                                val final = cipher.doFinal(bytes, 0, length)
+                                if (encoder.decode(hash)
+                                        .contentEquals(MessageDigest.getInstance("SHA-512").digest(final))
+                                ) {
+                                    stream.write(final)
+                                    child.delete()
+                                    notify(this, id, "Arquivo salvo", "$archive foi salvo")
+                                } else notify(this, id, "Arquivo corrompido", "O arquivo foi corrompido")
                             }
+                            this.finish()
+                        }
                     }
                 }
             } catch (ignored: OutOfMemoryError) {
