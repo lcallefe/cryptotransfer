@@ -28,6 +28,7 @@ import br.gov.sp.fatec.cryptotransfer.util.notify
 import com.google.common.io.BaseEncoding
 import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayInputStream
+import java.security.MessageDigest
 import java.util.zip.GZIPInputStream
 import javax.crypto.Cipher
 import javax.crypto.Cipher.DECRYPT_MODE
@@ -37,6 +38,7 @@ import kotlin.random.Random.Default.nextInt
 
 class ReceiverActivity : AppCompatActivity() {
     val encoder = BaseEncoding.base16()
+    private val MAXSIZEBYTES = 128 * 1000 * 1000
     private val requestCode = nextInt(65536)
     private var id = 0
     private var time = 0L
@@ -45,11 +47,13 @@ class ReceiverActivity : AppCompatActivity() {
     private lateinit var secret: String
     private lateinit var archive: String
     private lateinit var mimeType: String
+    private lateinit var hash: String
     private var asked = false
 
     override fun onStart() {
         super.onStart()
         if (!asked) {
+            Int.MAX_VALUE
             id = intent.getIntExtra("id", nextInt())
             sender = intent.getStringExtra("sender")!!
             iv = intent.getStringExtra("iv")!!
@@ -57,6 +61,7 @@ class ReceiverActivity : AppCompatActivity() {
             archive = intent.getStringExtra("archive")!!
             time = intent.getLongExtra("time", 0)
             mimeType = intent.getStringExtra("mimeType")!!
+            hash = intent.getStringExtra("hash")!!
             startActivityForResult(
                 Intent(ACTION_CREATE_DOCUMENT).setType(mimeType)
                     .putExtra(EXTRA_TITLE, archive), requestCode
@@ -68,36 +73,42 @@ class ReceiverActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == this.requestCode && resultCode == RESULT_OK && data != null) {
-            val uri = data.data
-            if (uri != null) {
-                getFingerprint(this) {
-                    FirebaseStorage.getInstance().reference
-                        .child("$it/$sender/$time").getBytes(10 * 1024 * 1024).addOnSuccessListener {
-                            val stream = contentResolver.openOutputStream(uri)
-                            if (stream != null) {
-                                val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-                                cipher.init(
-                                    DECRYPT_MODE,
-                                    SecretKeySpec(encoder.decode(secret), "AES"),
-                                    IvParameterSpec(encoder.decode(iv))
-                                )
-                                val gzip = GZIPInputStream(ByteArrayInputStream(it))
-                                val bytes = ByteArray(10 * 1024 * 1024)
-                                var length = 0
-                                while (true) {
-                                    val read = gzip.read()
-                                    if (read >= 0) {
-                                        bytes[length] = read.toByte()
-                                        length++
-                                    } else break
+            try {
+                val uri = data.data
+                if (uri != null) {
+                    getFingerprint(this) {
+                        FirebaseStorage.getInstance().reference
+                            .child("$it/$sender/$time").getBytes(MAXSIZEBYTES.toLong()).addOnSuccessListener {
+                                val stream = contentResolver.openOutputStream(uri)
+                                if (stream != null) {
+                                    val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+                                    cipher.init(
+                                        DECRYPT_MODE,
+                                        SecretKeySpec(encoder.decode(secret), "AES"),
+                                        IvParameterSpec(encoder.decode(iv))
+                                    )
+                                    val gzip = GZIPInputStream(ByteArrayInputStream(it))
+                                    val bytes = ByteArray(MAXSIZEBYTES)
+                                    var length = 0
+                                    while (true) {
+                                        val read = gzip.read()
+                                        if (read >= 0) bytes[length++] = read.toByte() else break
+                                    }
+                                    gzip.close()
+                                    val final = cipher.doFinal(bytes, 0, length)
+                                    if (encoder.decode(hash)
+                                            .contentEquals(MessageDigest.getInstance("SHA-512").digest(final))
+                                    ) {
+                                        stream.write(final)
+                                        notify(this, id, "Arquivo salvo", "$archive foi salvo")
+                                    } else notify(this, id, "Arquivo corrompido", "O arquivo foi corrompido")
                                 }
-                                gzip.close()
-                                stream.write(cipher.doFinal(bytes, 0, length))
-                                notify(this, id, "Arquivo salvo", "$archive foi salvo")
+                                this.finish()
                             }
-                            this.finish()
-                        }
+                    }
                 }
+            } catch (ignored: OutOfMemoryError) {
+                notify(this, id, "Falha ao receber arquivo", "A memória do dispositivo foi esgotada")
             }
         }
     }

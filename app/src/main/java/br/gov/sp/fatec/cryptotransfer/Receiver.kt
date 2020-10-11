@@ -44,6 +44,7 @@ class Receiver : BroadcastReceiver() {
                     .putExtra("secret", intent.getStringExtra("secret"))
                     .putExtra("time", intent.getLongExtra("time", 0))
                     .putExtra("mimeType", intent.getStringExtra("mimeType"))
+                    .putExtra("hash", intent.getStringExtra("hash"))
             )
         } else if (action.startsWith("Excluir todos")) {
             notify(context, id, "Arquivos excluídos", "Os arquivos foram excluídos")

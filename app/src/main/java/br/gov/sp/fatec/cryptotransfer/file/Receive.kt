@@ -60,23 +60,30 @@ fun watch(context: Context, sender: String) {
                             it.forEach { document ->
                                 decrypt(context, document.data["name"] as String) {
                                     val name = String(it)
-                                    val key = document.data["key"] as Map<String, String>
-                                    decrypt(context, key["iv"]!!) {
-                                        val iv = encoder.encode(it)
-                                        decrypt(context, key["secret"]!!) {
-                                            val secret = encoder.encode(it)
-                                            notify(
-                                                context,
-                                                nextInt(),
-                                                "Arquivo disponível de $sender",
-                                                name,
-                                                sender,
-                                                name,
-                                                iv,
-                                                secret,
-                                                time,
-                                                document.data["mimeType"] as String
-                                            )
+                                    decrypt(context, document.data["mimeType"] as String) {
+                                        val mimeType = String(it)
+                                        decrypt(context, document.data["hash"] as String) {
+                                            val hash = encoder.encode(it)
+                                            val key = document.data["key"] as Map<String, String>
+                                            decrypt(context, key["iv"]!!) {
+                                                val iv = encoder.encode(it)
+                                                decrypt(context, key["secret"]!!) {
+                                                    val secret = encoder.encode(it)
+                                                    notify(
+                                                        context,
+                                                        nextInt(),
+                                                        "Arquivo disponível de $sender",
+                                                        name,
+                                                        sender,
+                                                        name,
+                                                        iv,
+                                                        secret,
+                                                        time,
+                                                        mimeType,
+                                                        hash
+                                                    )
+                                                }
+                                            }
                                         }
                                     }
                                 }
