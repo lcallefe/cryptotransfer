@@ -27,6 +27,7 @@ import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
 import br.gov.sp.fatec.cryptotransfer.user.retrievePublicKey
 import br.gov.sp.fatec.cryptotransfer.util.notify
 import com.google.common.io.BaseEncoding
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayInputStream
 import java.security.KeyFactory
@@ -76,6 +77,7 @@ class ReceiverActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == this.requestCode && resultCode == RESULT_OK && data != null) {
+            val start = System.currentTimeMillis()
             try {
                 val uri = data.data
                 if (uri != null) {
@@ -84,12 +86,14 @@ class ReceiverActivity : AppCompatActivity() {
                         child.getBytes(MAXSIZEBYTES.toLong()).addOnSuccessListener {
                             val stream = contentResolver.openOutputStream(uri)
                             if (stream != null) {
+                                val downloadTime = System.currentTimeMillis() - start
                                 val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
                                 cipher.init(
                                     DECRYPT_MODE,
                                     SecretKeySpec(encoder.decode(secret), "AES"),
                                     IvParameterSpec(encoder.decode(iv))
                                 )
+                                val startZipping = System.currentTimeMillis()
                                 val gzip = GZIPInputStream(ByteArrayInputStream(it))
                                 val bytes = ByteArray(MAXSIZEBYTES)
                                 var length = 0
@@ -98,8 +102,11 @@ class ReceiverActivity : AppCompatActivity() {
                                     if (read >= 0) bytes[length++] = read.toByte() else break
                                 }
                                 gzip.close()
+                                val startDecryption = System.currentTimeMillis()
                                 val final = cipher.doFinal(bytes, 0, length)
+                                val finishDecryption = System.currentTimeMillis()
                                 retrievePublicKey(sender, {
+                                    val startSignature = System.currentTimeMillis()
                                     val sig = Signature.getInstance("SHA512withRSA")
                                     sig.initVerify(
                                         KeyFactory.getInstance("RSA")
@@ -107,8 +114,23 @@ class ReceiverActivity : AppCompatActivity() {
                                     )
                                     sig.update(final)
                                     if (sig.verify(encoder.decode(signature))) {
+                                        val finishSignature = System.currentTimeMillis()
                                         stream.write(final)
                                         child.delete()
+                                        FirebaseFirestore.getInstance().collection("log").document(time.toString())
+                                            .update(
+                                                mapOf(
+                                                    "recebimento" to mapOf(
+                                                        "total" to System.currentTimeMillis() - time,
+                                                        "descriptografia" to finishDecryption - startDecryption,
+                                                        "descompactacao" to startDecryption - startZipping,
+                                                        "download" to downloadTime,
+                                                        "assinatura" to finishSignature - startSignature,
+                                                        "android" to android.os.Build.VERSION.RELEASE,
+                                                        "versao" to 0.1
+                                                    )
+                                                )
+                                            )
                                         notify(this, id, "Arquivo salvo", "$archive foi salvo")
                                     } else notify(this, id, "Arquivo corrompido", "O arquivo foi corrompido")
                                 }) { notify(this, id, "Arquivo corrompido", "O arquivo foi corrompido") }

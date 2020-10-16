@@ -41,6 +41,7 @@ import kotlin.random.Random
 val encoder = base16()
 
 fun debugUpload(context: Context, receiver: String, uri: Uri, name: String, mimeType: String) {
+    val time = System.currentTimeMillis()
     val notification = Random.nextInt()
     notify(context, notification, "Envio de arquivo", "Preparando envio")
     val stream = context.contentResolver.openInputStream(uri)
@@ -61,18 +62,23 @@ fun debugUpload(context: Context, receiver: String, uri: Uri, name: String, mime
                 SecretKeySpec(secret, "AES"),
                 IvParameterSpec(iv)
             )
-            val time = System.currentTimeMillis()
             val bytes = stream.readBytes()
             val byteStream = ByteArrayOutputStream()
             val gzip = GZIPOutputStream(byteStream)
-            gzip.write(aes.doFinal(bytes))
+            val startEncryption = System.currentTimeMillis()
+            val encrypted = aes.doFinal(bytes)
+            val finishEncryption = System.currentTimeMillis()
+            gzip.write(encrypted)
             gzip.close()
+            val finishZipping = System.currentTimeMillis()
             sign(context, bytes) {
+                val finishSignature = System.currentTimeMillis()
                 val signature = encoder.encode(it)
                 getFingerprint(context) {
                     notify(context, notification, "Envio de arquivo", "Enviando arquivo")
                     try {
-                        FirebaseFirestore.getInstance().collection("transfer").add(
+                        val firestore = FirebaseFirestore.getInstance()
+                        firestore.collection("transfer").add(
                             mapOf(
                                 "key" to mapOf(
                                     "secret" to encoder.encode(rsa.doFinal(secret)),
@@ -86,10 +92,29 @@ fun debugUpload(context: Context, receiver: String, uri: Uri, name: String, mime
                                 "signature" to signature
                             )
                         )
+                        val final = byteStream.toByteArray()
+                        val startUpload = System.currentTimeMillis()
                         FirebaseStorage.getInstance()
                             .getReference("$receiver/$it/$time")
-                            .putBytes(byteStream.toByteArray())
+                            .putBytes(final)
                         byteStream.close()
+                        firestore.collection("log").document(time.toString()).set(
+                            mapOf(
+                                "envio" to mapOf(
+                                    "upload" to System.currentTimeMillis() - startUpload,
+                                    "total" to System.currentTimeMillis() - time,
+                                    "criptografia" to finishEncryption - startEncryption,
+                                    "compactacao" to finishZipping - finishEncryption,
+                                    "assinatura" to finishSignature - finishZipping,
+                                    "android" to android.os.Build.VERSION.RELEASE,
+                                    "versao" to 0.1
+                                ),
+                                "tipo" to mimeType,
+                                "prebytes" to bytes.size,
+                                "midbytes" to encrypted.size,
+                                "posbytes" to final.size
+                            )
+                        )
                         notify(context, notification, "Arquivo enviado", "Arquivo enviado com sucesso")
                     } catch (ignored: OutOfMemoryError) {
                         notify(
