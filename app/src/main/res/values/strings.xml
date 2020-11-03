@@ -20,7 +20,8 @@
 <resources>
     <string name="app_name">Crypto Transfer</string>
     <string name="select_file">Selecionar arquivo</string>
-    <string name="insert_receiver">Digite o ID de outro usário</string>
+    <string name="send">Enviar</string>
+    <string name="insert_receiver">Digite o ID de outro usuário</string>
     <string name="sender_id">Seu ID:</string>
     <string name="confirm_pin">Confirme o pin inserido</string>
     <string name="create_pin">Digite um PIN de seis dígitos</string>
