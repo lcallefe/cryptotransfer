@@ -38,16 +38,20 @@ import androidx.appcompat.app.AppCompatActivity
 import br.gov.sp.fatec.cryptotransfer.file.debugUpload
 import br.gov.sp.fatec.cryptotransfer.file.watch
 import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.random.Random.Default.nextInt
 
 class MainActivity : AppCompatActivity() {
     private val requestCode = nextInt(65536)
     lateinit var receiver: EditText
+    lateinit var bottomNavigationView: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        bottomNavigationView = findViewById(R.id.bottomNavigationView)
         createNotificationChannel()
 
         getFingerprint(this) { fingerprint ->
