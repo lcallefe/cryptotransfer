@@ -56,11 +56,12 @@ class MainActivity : AppCompatActivity() {
                 copyTextToClipboard(fingerprint)
             }
         }
+
         ButtonPaste.setOnClickListener {
             pasteTextFromClipboard()
         }
 
-        findViewById<Button>(R.id.Send).setOnClickListener {
+        findViewById<Button>(R.id.btnSend).setOnClickListener {
             startActivityForResult(
                 Intent.createChooser(
                     Intent().setType("*/*").setAction(ACTION_GET_CONTENT),
@@ -70,6 +71,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         receiver = findViewById(R.id.ReceiverUserId)
+
+        findViewById<Button>(R.id.btnOpenContactList).setOnClickListener {
+            val intent = Intent(this, ContactActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onResume() {
