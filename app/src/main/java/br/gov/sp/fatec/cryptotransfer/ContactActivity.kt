@@ -26,7 +26,9 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.gson.Gson
+import kotlinx.android.synthetic.main.activity_main.*
 import java.io.BufferedReader
 import java.io.File
 
@@ -51,6 +53,25 @@ class ContactActivity : AppCompatActivity() {
             val intent = Intent(this, NewContactActivity::class.java)
             startActivity(intent)
         }
+
+
+        val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.contactFragment -> {
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.sendFragment -> {
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.historyFragment -> {
+                    return@OnNavigationItemSelectedListener true
+                }
+            }
+            false
+        }
+        bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
     }
 
     private fun readContactsFomFile(fileName: String): Contacts {

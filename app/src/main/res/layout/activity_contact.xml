@@ -18,56 +18,73 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="10dp"
     tools:context=".ContactActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="10dp">
-        <EditText
-            android:id="@+id/searchContact"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="4"
-            android:hint="@string/search"
-            android:inputType="text"
-            android:textAlignment="center"
-            android:maxLines="1"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="30dp">
 
-            android:importantForAutofill="no" />
-
-        <ImageView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="end|center"
-            android:src="@drawable/ic_search"
+            android:orientation="horizontal"
+            android:layout_marginBottom="10dp">
+            <EditText
+                android:id="@+id/searchContact"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="4"
+                android:hint="@string/search"
+                android:inputType="text"
+                android:textAlignment="center"
+                android:maxLines="1"
+
+                android:importantForAutofill="no" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center"
+                android:src="@drawable/ic_search"
+                android:background="@android:color/transparent"
+                android:contentDescription="Search Icon" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnAddContact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:contentDescription="Search Icon" />
+            android:text="Adicionar contato"
+            android:textColor="@color/blue"
+            android:textAllCaps="false"
+            android:textAlignment="viewStart" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_contacts"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btnAddContact"
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:text="Adicionar contato"
-        android:textColor="@color/blue"
-        android:textAllCaps="false"
-        android:textAlignment="viewStart" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_contacts"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical"
-        />
-</LinearLayout>
+        android:layout_alignParentBottom="true"
+        android:background="?android:attr/windowBackground"
+        app:itemBackground="@color/colorPrimary"
+        app:itemIconTint="@color/white"
+        app:itemTextColor="@color/white"
+        app:menu="@menu/bottom_navigation_menu"/>
+</RelativeLayout>
