@@ -27,7 +27,7 @@
             android:icon="@drawable/ic_account_box"
             android:title="@string/contacts"/>
         <item
-            android:id="@+id/navigation_send"
+            android:id="@+id/sendFragment"
             android:enabled="true"
             android:icon="@drawable/ic_add_circle_outline"
             android:title="@string/send"/>

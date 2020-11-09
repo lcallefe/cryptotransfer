@@ -38,6 +38,7 @@ import androidx.appcompat.app.AppCompatActivity
 import br.gov.sp.fatec.cryptotransfer.file.debugUpload
 import br.gov.sp.fatec.cryptotransfer.file.watch
 import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.random.Random.Default.nextInt
 
@@ -72,10 +73,23 @@ class MainActivity : AppCompatActivity() {
 
         receiver = findViewById(R.id.ReceiverUserId)
 
-        findViewById<Button>(R.id.btnOpenContactList).setOnClickListener {
-            val intent = Intent(this, ContactActivity::class.java)
-            startActivity(intent)
+        val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener {item ->
+            when (item.itemId) {
+                R.id.contactFragment -> {
+                    val intent = Intent(this, ContactActivity::class.java)
+                    startActivity(intent)
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.sendFragment -> {
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.historyFragment -> {
+                    return@OnNavigationItemSelectedListener true
+                }
+            }
+            false
         }
+        bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
     }
 
     override fun onResume() {
