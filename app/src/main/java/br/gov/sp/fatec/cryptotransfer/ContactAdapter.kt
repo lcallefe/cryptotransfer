@@ -71,13 +71,6 @@ class ContactAdapter (private val context: Context,
                 if (charSearch.isEmpty()) {
                     filteredList = myDataset
                 } else {
-//                    val resultList = ArrayList<Contact?>()
-//                    myDataset.forEach { c ->
-//                        if (c != null && (c.name.contains(charSearch, ignoreCase = true) || c.id.contains(charSearch, ignoreCase = true))) {
-//                            resultList.add(c)
-//                        }
-//                    }
-//                    filteredList = resultList
                     filteredList = myDataset.filter { it != null &&
                         (it.name.contains(charSearch, ignoreCase = true) || it.id.contains(charSearch, ignoreCase = true))
                     } as ArrayList<Contact?>
@@ -93,5 +86,10 @@ class ContactAdapter (private val context: Context,
                 notifyDataSetChanged()
             }
         }
+    }
+
+    private fun removeItem(position: Int) {
+        myDataset.removeAt(position)
+        notifyItemRemoved(position)
     }
 }

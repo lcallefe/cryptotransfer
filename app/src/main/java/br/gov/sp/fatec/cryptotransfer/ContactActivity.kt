@@ -40,6 +40,8 @@ class ContactActivity : AppCompatActivity(), CellOnClickListener {
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: ContactAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
+    private val contactsAll: ArrayList<Contact?> = readContactsFomFile(this).contacts
+    private val contactsNotDeleted = contactsAll.filter { it != null && !it.deleted } as ArrayList<Contact?>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,9 +49,6 @@ class ContactActivity : AppCompatActivity(), CellOnClickListener {
 
         val actionBar = supportActionBar
         actionBar!!.setTitle(R.string.contacts)
-
-        val contactsAll: ArrayList<Contact?> = readContactsFomFile(this).contacts
-        val contactsNotDeleted = contactsAll.filter { it != null && !it.deleted } as ArrayList<Contact?>
 
         recyclerView = findViewById(R.id.rv_contacts)
         viewManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -78,7 +77,7 @@ class ContactActivity : AppCompatActivity(), CellOnClickListener {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        /*** Add new contact functionality ***/
+        /*** new contact functionality ***/
         val intent: Intent
         when (item.itemId) {
             R.id.newContactActivity -> {
@@ -90,7 +89,7 @@ class ContactActivity : AppCompatActivity(), CellOnClickListener {
     }
 
     override fun onCellClickListener(data: Contact) {
-        /*** Add selection contactID functionality ***/
+        /*** pass selected contactID to MainActivity ***/
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("selectedReceiverID", data.id)
         startActivity(intent)
