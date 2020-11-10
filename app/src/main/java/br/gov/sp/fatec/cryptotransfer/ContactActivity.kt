@@ -20,18 +20,15 @@
 package br.gov.sp.fatec.cryptotransfer
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.SearchView
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import br.gov.sp.fatec.cryptotransfer.util.set
 import com.google.gson.Gson
-import kotlinx.android.synthetic.main.activity_contact.*
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.bottomNavigationView
 import java.io.BufferedReader
 import java.io.File
 
@@ -72,30 +69,14 @@ class ContactActivity : AppCompatActivity() {
         }
 
         /*** Bottom bar navigation functionality ***/
-        val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.contactFragment -> {
-                    return@OnNavigationItemSelectedListener true
-                }
-                R.id.sendFragment -> {
-                    val intent = Intent(this, MainActivity::class.java)
-                    startActivity(intent)
-                    return@OnNavigationItemSelectedListener true
-                }
-                R.id.historyFragment -> {
-                    return@OnNavigationItemSelectedListener true
-                }
-            }
-            false
-        }
-        bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+        bottomNavigationView.setOnNavigationItemSelectedListener(set(this))
     }
 
     private fun readContactsFomFile(fileName: String): Contacts {
         val file = File(filesDir, fileName)
         if (file.exists()) {
             //Creating a new Gson object to read data
-            var gson = Gson()
+            val gson = Gson()
             //Read the PostJSON.json file
             val bufferedReader: BufferedReader = file.bufferedReader()
             // Read the text from buffferReader and store in String variable

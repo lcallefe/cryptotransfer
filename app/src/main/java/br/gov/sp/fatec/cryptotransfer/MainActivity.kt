@@ -38,7 +38,7 @@ import androidx.appcompat.app.AppCompatActivity
 import br.gov.sp.fatec.cryptotransfer.file.debugUpload
 import br.gov.sp.fatec.cryptotransfer.file.watch
 import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import br.gov.sp.fatec.cryptotransfer.util.set
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.random.Random.Default.nextInt
 
@@ -74,23 +74,7 @@ class MainActivity : AppCompatActivity() {
         receiver = findViewById(R.id.ReceiverUserId)
 
         /*** Bottom bar navigation functionality ***/
-        val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener {item ->
-            when (item.itemId) {
-                R.id.contactFragment -> {
-                    val intent = Intent(this, ContactActivity::class.java)
-                    startActivity(intent)
-                    return@OnNavigationItemSelectedListener true
-                }
-                R.id.sendFragment -> {
-                    return@OnNavigationItemSelectedListener true
-                }
-                R.id.historyFragment -> {
-                    return@OnNavigationItemSelectedListener true
-                }
-            }
-            false
-        }
-        bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+        bottomNavigationView.setOnNavigationItemSelectedListener(set(this))
     }
 
     override fun onResume() {
