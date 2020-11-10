@@ -18,50 +18,58 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:layout_centerInParent="true"
     tools:context=".NewContactActivity">
 
-    <EditText
-        android:id="@+id/newContactName"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginStart="20dp"
-        android:hint="Digite o nome do usuário"
-        android:elevation="4dp"
-        android:gravity="center" />
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-    <EditText
-        android:gravity="center"
-        android:id="@+id/newContactId"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginStart="20dp"
-        android:hint="Digite o id do usuário"
-        android:elevation="4dp" />
 
-    <Button
-        android:id="@+id/btnSaveContact"
-        android:layout_gravity="end"
-        android:layout_marginEnd="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:text="@android:string/ok"
-        android:gravity="center"
-        android:textColor="@android:color/white"
-        android:background="@color/colorAccent" />
+        <EditText
+            android:id="@+id/newContactName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="20dp"
+            android:hint="Digite o nome do usuário"
+            android:elevation="4dp"
+            android:gravity="center" />
 
-</LinearLayout>
+        <EditText
+            android:gravity="center"
+            android:id="@+id/newContactId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="20dp"
+            android:hint="Digite o id do usuário"
+            android:elevation="4dp" />
+
+        <Button
+            android:id="@+id/btnSaveContact"
+            android:layout_gravity="end"
+            android:layout_marginEnd="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:text="@android:string/ok"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:background="@color/colorAccent" />
+
+    </LinearLayout>
+
+</RelativeLayout>

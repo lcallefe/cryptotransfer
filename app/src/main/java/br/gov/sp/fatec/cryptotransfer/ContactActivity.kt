@@ -23,38 +23,55 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import android.widget.SearchView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.gson.Gson
+import kotlinx.android.synthetic.main.activity_contact.*
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.bottomNavigationView
 import java.io.BufferedReader
 import java.io.File
 
 class ContactActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var viewAdapter: RecyclerView.Adapter<*>
+    private lateinit var viewAdapter: ContactAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_contact)
 
-        var contactList: ArrayList<Contact?> = readContactsFomFile("contacts.json").contacts
-        viewManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        viewAdapter = ContactAdapter(contactList)
-        recyclerView = findViewById<RecyclerView>(R.id.rv_contacts)
-        recyclerView!!.layoutManager = viewManager
-        recyclerView!!.adapter = viewAdapter
+        val contactsAll: ArrayList<Contact?> = readContactsFomFile("contacts.json").contacts
+        val contactsNotDeleted = contactsAll.filter { it != null && !it.deleted } as ArrayList<Contact?>
 
+        recyclerView = findViewById(R.id.rv_contacts)
+        viewManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        recyclerView.layoutManager = viewManager
+        viewAdapter = ContactAdapter(contactsNotDeleted)
+        recyclerView.adapter = viewAdapter
+
+        /*** Search Bar functionality ***/
+        findViewById<SearchView>(R.id.sv_search_contact).setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+            override fun onQueryTextChange(newText: String?): Boolean {
+                viewAdapter.filter.filter(newText)
+                return false
+            }
+        })
+
+        /*** Add new contact functionality ***/
         findViewById<Button>(R.id.btnAddContact).setOnClickListener {
             val intent = Intent(this, NewContactActivity::class.java)
             startActivity(intent)
         }
 
-
+        /*** Bottom bar navigation functionality ***/
         val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.contactFragment -> {

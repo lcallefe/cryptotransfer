@@ -21,7 +21,7 @@ package br.gov.sp.fatec.cryptotransfer
 
 class Contact(var name: String, var id: String, var deleted: Boolean = false)
 
-class Contacts(var contacts: ArrayList<Contact?> = ArrayList<Contact?>()) {
+class Contacts(var contacts: ArrayList<Contact?> = ArrayList()) {
     fun addContact(new: Contact) {
         this.contacts.add(new)
     }

@@ -73,6 +73,7 @@ class MainActivity : AppCompatActivity() {
 
         receiver = findViewById(R.id.ReceiverUserId)
 
+        /*** Bottom bar navigation functionality ***/
         val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener {item ->
             when (item.itemId) {
                 R.id.contactFragment -> {

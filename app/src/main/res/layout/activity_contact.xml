@@ -28,35 +28,19 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="30dp">
+        android:layout_alignParentTop="true"
+        android:layout_above="@id/bottomNavigationView"
+        android:padding="3dp">
 
-        <LinearLayout
+        <SearchView
+            android:id="@+id/sv_search_contact"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="10dp">
-            <EditText
-                android:id="@+id/searchContact"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="4"
-                android:hint="@string/search"
-                android:inputType="text"
-                android:textAlignment="center"
-                android:maxLines="1"
-
-                android:importantForAutofill="no" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|center"
-                android:src="@drawable/ic_search"
-                android:background="@android:color/transparent"
-                android:contentDescription="Search Icon" />
-        </LinearLayout>
+            android:iconifiedByDefault="false"
+            android:queryHint="@string/search"
+            android:queryBackground="@null"/>
 
         <Button
             android:id="@+id/btnAddContact"
