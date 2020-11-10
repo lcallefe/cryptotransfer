@@ -19,6 +19,7 @@
 
 package br.gov.sp.fatec.cryptotransfer
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Filter
@@ -26,10 +27,13 @@ import android.widget.Filterable
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import br.gov.sp.fatec.cryptotransfer.util.CellOnClickListener
 import br.gov.sp.fatec.cryptotransfer.util.Contact
 import kotlin.collections.ArrayList
 
-class ContactAdapter (private val myDataset: ArrayList<Contact?>) :
+class ContactAdapter (private val context: Context,
+                      private val myDataset: ArrayList<Contact?>,
+                      private val cellClickListener: CellOnClickListener) :
     RecyclerView.Adapter<ContactAdapter.ContactViewHolder>(), Filterable {
     
     var filteredList = ArrayList<Contact?>()
@@ -52,7 +56,10 @@ class ContactAdapter (private val myDataset: ArrayList<Contact?>) :
         holder.contactName.text = filteredList[position]?.name
         holder.contactId.text = filteredList[position]?.id
 
-//        holder.
+        val selectedContact = filteredList[position] as Contact
+        holder.itemView.setOnClickListener {
+            cellClickListener.onCellClickListener(selectedContact)
+        }
     }
 
     override fun getItemCount() = filteredList.size

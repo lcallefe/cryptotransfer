@@ -20,19 +20,22 @@
 package br.gov.sp.fatec.cryptotransfer
 
 import android.content.Intent
+import android.graphics.ColorSpace
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SearchView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import br.gov.sp.fatec.cryptotransfer.util.CellOnClickListener
 import br.gov.sp.fatec.cryptotransfer.util.Contact
 import br.gov.sp.fatec.cryptotransfer.util.readContactsFomFile
 import br.gov.sp.fatec.cryptotransfer.util.set
 import kotlinx.android.synthetic.main.activity_main.*
 
-class ContactActivity : AppCompatActivity() {
+class ContactActivity : AppCompatActivity(), CellOnClickListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: ContactAdapter
@@ -51,7 +54,7 @@ class ContactActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.rv_contacts)
         viewManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.layoutManager = viewManager
-        viewAdapter = ContactAdapter(contactsNotDeleted)
+        viewAdapter = ContactAdapter(this, contactsAll, this)
         recyclerView.adapter = viewAdapter
 
         /*** Search Bar functionality ***/
@@ -85,4 +88,13 @@ class ContactActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+
+    override fun onCellClickListener(data: Contact) {
+        /*** Add selection contactID functionality ***/
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("selectedReceiverID", data.id)
+        startActivity(intent)
+        Toast.makeText(this,"${data.name}", Toast.LENGTH_SHORT).show()
+    }
+
 }
