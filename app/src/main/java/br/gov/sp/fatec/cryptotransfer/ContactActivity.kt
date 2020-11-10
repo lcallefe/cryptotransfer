@@ -21,16 +21,16 @@ package br.gov.sp.fatec.cryptotransfer
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import br.gov.sp.fatec.cryptotransfer.util.Contact
+import br.gov.sp.fatec.cryptotransfer.util.readContactsFomFile
 import br.gov.sp.fatec.cryptotransfer.util.set
-import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_main.*
-import java.io.BufferedReader
-import java.io.File
 
 class ContactActivity : AppCompatActivity() {
 
@@ -42,7 +42,10 @@ class ContactActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_contact)
 
-        val contactsAll: ArrayList<Contact?> = readContactsFomFile("contacts.json").contacts
+        val actionBar = supportActionBar
+        actionBar!!.setTitle(R.string.contacts)
+
+        val contactsAll: ArrayList<Contact?> = readContactsFomFile(this).contacts
         val contactsNotDeleted = contactsAll.filter { it != null && !it.deleted } as ArrayList<Contact?>
 
         recyclerView = findViewById(R.id.rv_contacts)
@@ -62,28 +65,24 @@ class ContactActivity : AppCompatActivity() {
             }
         })
 
-        /*** Add new contact functionality ***/
-        findViewById<Button>(R.id.btnAddContact).setOnClickListener {
-            val intent = Intent(this, NewContactActivity::class.java)
-            startActivity(intent)
-        }
-
         /*** Bottom bar navigation functionality ***/
         bottomNavigationView.setOnNavigationItemSelectedListener(set(this))
     }
 
-    private fun readContactsFomFile(fileName: String): Contacts {
-        val file = File(filesDir, fileName)
-        if (file.exists()) {
-            //Creating a new Gson object to read data
-            val gson = Gson()
-            //Read the PostJSON.json file
-            val bufferedReader: BufferedReader = file.bufferedReader()
-            // Read the text from buffferReader and store in String variable
-            val inputString = bufferedReader.use { it.readText() }
-            //Convert the Json File to Gson Object
-            return gson.fromJson(inputString, Contacts::class.java)
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.actionbar_contact_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        /*** Add new contact functionality ***/
+        val intent: Intent
+        when (item.itemId) {
+            R.id.newContactActivity -> {
+                intent = Intent(this, NewContactActivity::class.java)
+                startActivity(intent)
+            }
         }
-        return Contacts()
+        return super.onOptionsItemSelected(item)
     }
 }

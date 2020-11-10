@@ -42,22 +42,12 @@
             android:queryHint="@string/search"
             android:queryBackground="@null"/>
 
-        <Button
-            android:id="@+id/btnAddContact"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:text="Adicionar contato"
-            android:textColor="@color/blue"
-            android:textAllCaps="false"
-            android:textAlignment="viewStart" />
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_contacts"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="vertical"
-            />
+            tools:listitem="@layout/list_item_contact"/>
     </LinearLayout>
 
 

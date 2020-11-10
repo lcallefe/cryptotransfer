@@ -26,8 +26,7 @@ import android.widget.Filterable
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.list_item_contact.view.*
-import java.util.*
+import br.gov.sp.fatec.cryptotransfer.util.Contact
 import kotlin.collections.ArrayList
 
 class ContactAdapter (private val myDataset: ArrayList<Contact?>) :

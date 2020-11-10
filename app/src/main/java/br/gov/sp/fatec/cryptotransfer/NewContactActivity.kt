@@ -19,27 +19,23 @@
 
 package br.gov.sp.fatec.cryptotransfer
 
-import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import kotlinx.android.synthetic.main.activity_new_contact.*
-import java.io.BufferedReader
-import java.io.File
-import java.io.FileOutputStream
-import java.lang.Exception
+import br.gov.sp.fatec.cryptotransfer.util.Contact
+import br.gov.sp.fatec.cryptotransfer.util.saveContactToFile
 
 class NewContactActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_contact)
+
+        val actionBar = supportActionBar
+        actionBar!!.setTitle(R.string.new_contact)
+        actionBar.setDisplayHomeAsUpEnabled(true)
 
         val newContactName = findViewById<EditText>(R.id.newContactName)
         val newContactId = findViewById<EditText>(R.id.newContactId)
@@ -53,44 +49,15 @@ class NewContactActivity : AppCompatActivity() {
                 Toast.makeText(this, "Insert the ID.", Toast.LENGTH_LONG).show()
             } else {
                 val new = Contact(name, id, false)
-                saveContactToFile("contacts.json", new)
+                saveContactToFile(this, new)
                 val intent = Intent(this, ContactActivity::class.java)
                 startActivity(intent)
             }
         }
     }
 
-    private fun saveFile(fileName: String, text: String) {
-        //Initialize the File Writer and write into file
-        val file = File(filesDir, fileName)
-        file.writeText(text)
-        Toast.makeText(this, "New Contact saved.", Toast.LENGTH_LONG).show()
-    }
-
-    private fun readContactsFomFile(fileName: String): Contacts {
-        val file = File(filesDir, fileName)
-        if (file.exists()) {
-            //Creating a new Gson object to read data
-            var gson = Gson()
-            //Read the PostJSON.json file
-            val bufferedReader: BufferedReader = file.bufferedReader()
-            // Read the text from buffferReader and store in String variable
-            val inputString = bufferedReader.use { it.readText() }
-            //Convert the Json File to Gson Object
-            return gson.fromJson(inputString, Contacts::class.java)
-        }
-        return Contacts()
-    }
-
-    private fun saveContactToFile(fileName: String, contact: Contact) {
-        //Reading current file
-        var contactList: Contacts = readContactsFomFile(fileName)
-        //Adding New Contact
-        contactList.contacts.add(contact)
-        //Creating a new Gson object to read data
-        var gson = Gson()
-        //Writing to JSON file
-        val json = gson.toJson(contactList)
-        saveFile(fileName, json)
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 }
