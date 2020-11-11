@@ -21,14 +21,14 @@ package br.gov.sp.fatec.cryptotransfer
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import br.gov.sp.fatec.cryptotransfer.util.CellOnClickListener
-import br.gov.sp.fatec.cryptotransfer.util.Contact
+import br.gov.sp.fatec.cryptotransfer.util.*
 import kotlin.collections.ArrayList
 
 class ContactAdapter (private val context: Context,
@@ -42,19 +42,19 @@ class ContactAdapter (private val context: Context,
         filteredList = myDataset
     }
 
-    inner class ContactViewHolder(cardView: CardView) : RecyclerView.ViewHolder(cardView) {
-        internal var contactName: TextView = cardView.findViewById(R.id.contactName) as TextView
-        internal var contactId: TextView = cardView.findViewById(R.id.contactId) as TextView
+    inner class ContactViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        internal var contactName: TextView = view.findViewById(R.id.contactName) as TextView
+        internal var contactId: TextView = view.findViewById(R.id.contactId) as TextView
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
-        val cardView = LayoutInflater.from(parent.context).inflate(R.layout.list_item_contact, parent, false) as CardView
-        return ContactViewHolder(cardView)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_contact, parent, false) as View
+        return ContactViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
-        holder.contactName.text = filteredList[position]?.name
-        holder.contactId.text = filteredList[position]?.id
+        holder.contactName.text = filteredList[position]!!.name
+        holder.contactId.text = filteredList[position]!!.id
 
         val selectedContact = filteredList[position] as Contact
         holder.itemView.setOnClickListener {
@@ -88,8 +88,36 @@ class ContactAdapter (private val context: Context,
         }
     }
 
+    override fun getItemViewType(position: Int): Int {
+        if (filteredList[position]!!.showMenu)
+            return 1
+        else
+            return 0
+    }
+
+    fun showMenu(position: Int) {
+        filteredList.forEach { c -> c!!.showMenu = false }
+        filteredList[position]?.showMenu = true
+        notifyDataSetChanged()
+    }
+
+    fun isMenuShown(): Boolean {
+        for (c in filteredList) {
+            if (c!!.showMenu)
+                return true
+        }
+        return false
+    }
+
+    fun closeMenu() {
+        filteredList.forEach { c -> c!!.showMenu = false }
+        notifyDataSetChanged()
+    }
+
     private fun removeItem(position: Int) {
-        myDataset.removeAt(position)
+        val deleted = filteredList[position] as Contact
+        deleteContactFromFile(context, deleted)
+        filteredList.removeAt(position)
         notifyItemRemoved(position)
     }
 }

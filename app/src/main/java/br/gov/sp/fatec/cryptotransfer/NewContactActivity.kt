@@ -26,7 +26,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import br.gov.sp.fatec.cryptotransfer.util.Contact
-import br.gov.sp.fatec.cryptotransfer.util.saveContactToFile
+import br.gov.sp.fatec.cryptotransfer.util.addNewContactToFile
+import br.gov.sp.fatec.cryptotransfer.util.updateContactFromFile
 
 class NewContactActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,11 +35,19 @@ class NewContactActivity : AppCompatActivity() {
         setContentView(R.layout.activity_new_contact)
 
         val actionBar = supportActionBar
-        actionBar!!.setTitle(R.string.new_contact)
-        actionBar.setDisplayHomeAsUpEnabled(true)
+        actionBar!!.setDisplayHomeAsUpEnabled(true)
+        val update = intent.getStringExtra("updateContact")
 
         val newContactName = findViewById<EditText>(R.id.newContactName)
         val newContactId = findViewById<EditText>(R.id.newContactId)
+
+        /*** Update from contact list ***/
+        if (update != null && update.isNotBlank()) {
+            actionBar!!.setTitle(R.string.update_contact)
+            newContactName.setText(intent.getStringExtra("selectedContactName"))
+            newContactId.setText(intent.getStringExtra("selectedContactID"))
+        } else
+            actionBar!!.setTitle(R.string.new_contact)
 
         findViewById<Button>(R.id.btnSaveContact).setOnClickListener {
             val name: String = newContactName.text.toString().trim()
@@ -49,9 +58,11 @@ class NewContactActivity : AppCompatActivity() {
                 Toast.makeText(this, "Insert the ID.", Toast.LENGTH_LONG).show()
             } else {
                 val new = Contact(name, id, false)
-                saveContactToFile(this, new)
-                val intent = Intent(this, ContactActivity::class.java)
-                startActivity(intent)
+                if (update != null && update.isNotBlank()) {
+                    val old = Contact(intent.getStringExtra("selectedContactName")!!, intent.getStringExtra("selectedContactID")!!)
+                    updateContactFromFile(this, old, new)
+                } else
+                    addNewContactToFile(this, new)
             }
         }
     }

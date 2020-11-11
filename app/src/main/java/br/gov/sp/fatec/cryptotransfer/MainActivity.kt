@@ -64,9 +64,8 @@ class MainActivity : AppCompatActivity() {
 
         /*** Get ReceiverID from contact list ***/
         val receiverID = intent.getStringExtra("selectedReceiverID")
-        if (receiverID != null && receiverID.isNotBlank()) {
+        if (receiverID != null && receiverID.isNotBlank())
             ReceiverUserId.setText(receiverID)
-        }
 
         findViewById<Button>(R.id.btnSend).setOnClickListener {
             startActivityForResult(

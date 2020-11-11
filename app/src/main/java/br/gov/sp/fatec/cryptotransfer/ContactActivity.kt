@@ -24,24 +24,22 @@ import android.graphics.ColorSpace
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.LinearLayout
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import br.gov.sp.fatec.cryptotransfer.util.CellOnClickListener
-import br.gov.sp.fatec.cryptotransfer.util.Contact
-import br.gov.sp.fatec.cryptotransfer.util.readContactsFomFile
-import br.gov.sp.fatec.cryptotransfer.util.set
+import br.gov.sp.fatec.cryptotransfer.util.*
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.list_item_contact.*
 
 class ContactActivity : AppCompatActivity(), CellOnClickListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: ContactAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
-    private val contactsAll: ArrayList<Contact?> = readContactsFomFile(this).contacts
-    private val contactsNotDeleted = contactsAll.filter { it != null && !it.deleted } as ArrayList<Contact?>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +48,7 @@ class ContactActivity : AppCompatActivity(), CellOnClickListener {
         val actionBar = supportActionBar
         actionBar!!.setTitle(R.string.contacts)
 
+        val contactsAll: ArrayList<Contact?> = readContactsFomFile(this).contacts
         recyclerView = findViewById(R.id.rv_contacts)
         viewManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.layoutManager = viewManager
@@ -89,11 +88,24 @@ class ContactActivity : AppCompatActivity(), CellOnClickListener {
     }
 
     override fun onCellClickListener(data: Contact) {
-        /*** pass selected contactID to MainActivity ***/
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("selectedReceiverID", data.id)
-        startActivity(intent)
-        Toast.makeText(this,"${data.name}", Toast.LENGTH_SHORT).show()
+//        findViewById<LinearLayout>(R.id.ll_container_menu).visibility = View.VISIBLE
+        sendToContact(data)
+//        editContact(data)
     }
 
+    private fun sendToContact(contact: Contact) {
+        /*** pass selected contactID to MainActivity ***/
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("selectedReceiverID", contact.id)
+        startActivity(intent)
+    }
+
+    private fun editContact(contact: Contact) {
+        /*** pass selected contactID to NewContactActivity ***/
+        val intent = Intent(this, NewContactActivity::class.java)
+        intent.putExtra("updateContact", "update")
+        intent.putExtra("selectedContactName", contact.name)
+        intent.putExtra("selectedContactID", contact.id)
+        startActivity(intent)
+    }
 }

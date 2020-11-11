@@ -20,21 +20,18 @@
 package br.gov.sp.fatec.cryptotransfer.util
 
 import android.content.Context
+import android.content.Intent
 import android.widget.Toast
+import br.gov.sp.fatec.cryptotransfer.ContactActivity
+import br.gov.sp.fatec.cryptotransfer.R
 import com.google.gson.Gson
 import java.io.BufferedReader
 import java.io.File
+import java.lang.Exception
 
-class Contact(var name: String, var id: String, var deleted: Boolean = false)
+class Contact(var name: String, var id: String, var showMenu: Boolean = false)
 
 class Contacts(var contacts: ArrayList<Contact?> = ArrayList())
-
-fun saveFile(context: Context, text: String) {
-    //Initialize the File Writer and write into file
-    val file = File(context.filesDir, "contacts.json")
-    file.writeText(text)
-    Toast.makeText(context, "Contact saved.", Toast.LENGTH_LONG).show()
-}
 
 fun readContactsFomFile(context: Context): Contacts {
     val file = File(context.filesDir, "contacts.json")
@@ -51,14 +48,75 @@ fun readContactsFomFile(context: Context): Contacts {
     return Contacts()
 }
 
-fun saveContactToFile(context: Context, contact: Contact) {
+fun addNewContactToFile(context: Context, contact: Contact) {
     //Reading current file
-    var contactList: Contacts = readContactsFomFile(context)
-    //Adding New Contact
-    contactList.contacts.add(contact)
+    var contacts: Contacts = readContactsFomFile(context)
+    if (contacts.contacts.any{ c -> c!!.id == contact.id }) {
+        Toast.makeText(context, R.string.id_already_exists, Toast.LENGTH_LONG).show()
+    } else {
+        //Adding New Contact
+        contacts = addToContacts(contacts, contact)
+        saveContactsToFile(context, contacts)
+        val intent = Intent(context, ContactActivity::class.java)
+        context.startActivity(intent)
+    }
+}
+
+fun deleteContactFromFile(context: Context, contact: Contact) {
+    //Reading current file
+    var contacts: Contacts = readContactsFomFile(context)
+    //Delete contact
+    val update = deleteFromContacts(contacts, contact)
+    //Save updated list
+    saveContactsToFile(context, update)
+}
+
+fun updateContactFromFile(context: Context, old: Contact, new: Contact) {
+    //Reading current file
+    var contacts: Contacts = readContactsFomFile(context)
+    //Delete old contact
+    contacts = deleteFromContacts(contacts, old)
+    //Add new
+    if (contacts.contacts.any{ c -> c!!.id == new.id }) {
+        Toast.makeText(context, R.string.id_already_exists, Toast.LENGTH_LONG).show()
+    } else {
+        //Adding New Contact
+        contacts = addToContacts(contacts, new)
+        saveContactsToFile(context, contacts)
+        val intent = Intent(context, ContactActivity::class.java)
+        context.startActivity(intent)
+    }
+}
+
+private fun addToContacts(allContacts: Contacts, contact: Contact): Contacts {
+    var update = allContacts
+    update.contacts.add(contact)
+    return update
+}
+
+private fun deleteFromContacts(allContacts: Contacts, contact: Contact): Contacts {
+    val update = allContacts.contacts.filter {
+        it != null && it.name != contact.name && it.id != contact.id
+    } as ArrayList<Contact?>
+    return Contacts(update)
+}
+
+private fun saveContactsToFile(context: Context, contacts: Contacts) {
+    //Writing to JSON file
+    val json = objContactsToJSON(contacts)
+    saveJSONtoFile(context, json)
+}
+
+private fun objContactsToJSON(contacts: Contacts): String {
     //Creating a new Gson object to read data
     var gson = Gson()
     //Writing to JSON file
-    val json = gson.toJson(contactList)
-    saveFile(context, json)
+    return gson.toJson(contacts)
+}
+
+private fun saveJSONtoFile(context: Context, jsonText: String) {
+    //Initialize the File Writer and write into file
+    val file = File(context.filesDir, "contacts.json")
+    file.writeText(jsonText)
+    Toast.makeText(context, R.string.contact_saved, Toast.LENGTH_LONG).show()
 }
