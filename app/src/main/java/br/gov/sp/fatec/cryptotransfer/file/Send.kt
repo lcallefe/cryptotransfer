@@ -66,7 +66,7 @@ fun debugUpload(context: Context, receiver: String, uri: Uri, name: String, mime
             val byteStream = ByteArrayOutputStream()
             val gzip = GZIPOutputStream(byteStream)
             val startEncryption = System.currentTimeMillis()
-            val encrypted = aes.doFinal(bytes)
+            val encrypted = bytes
             val finishEncryption = System.currentTimeMillis()
             gzip.write(encrypted)
             gzip.close()
