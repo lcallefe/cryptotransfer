@@ -20,13 +20,15 @@
 package br.gov.sp.fatec.cryptotransfer
 
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
+import android.widget.PopupMenu
 import android.widget.TextView
-import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import br.gov.sp.fatec.cryptotransfer.util.*
 import kotlin.collections.ArrayList
@@ -57,6 +59,27 @@ class ContactAdapter (private val context: Context,
         holder.contactId.text = filteredList[position]!!.id
 
         val selectedContact = filteredList[position] as Contact
+//        val popupMenu = PopupMenu(context, holder.itemView)
+//        popupMenu.inflate(R.menu.rv_item_contact_menu)
+//        popupMenu.setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener {
+//            override fun onMenuItemClick(item: MenuItem): Boolean {
+//                when (item.itemId) {
+//                    R.id.item_menu_send -> {
+//                        return true
+//                    }
+//                    R.id.item_menu_edit -> {
+////                        cellClickListener.onCellClickListener(selectedContact)
+//                        return true
+//                    }
+//                    R.id.item_menu_delete -> {
+////                        removeItem(position)
+//                        return true
+//                    }
+//                    else -> return false
+//                }
+//            }
+//        })
+//        popupMenu.show()
         holder.itemView.setOnClickListener {
             cellClickListener.onCellClickListener(selectedContact)
         }
@@ -119,5 +142,22 @@ class ContactAdapter (private val context: Context,
         deleteContactFromFile(context, deleted)
         filteredList.removeAt(position)
         notifyItemRemoved(position)
+    }
+
+
+    private fun sendToContact(contact: Contact) {
+        /*** pass selected contactID to MainActivity ***/
+        val intent = Intent(context, MainActivity::class.java)
+        intent.putExtra("selectedReceiverID", contact.id)
+        context.startActivity(intent)
+    }
+
+    private fun editContact(contact: Contact) {
+        /*** pass selected contactID to NewContactActivity ***/
+        val intent = Intent(context, NewContactActivity::class.java)
+        intent.putExtra("updateContact", "update")
+        intent.putExtra("selectedContactName", contact.name)
+        intent.putExtra("selectedContactID", contact.id)
+        context.startActivity(intent)
     }
 }
