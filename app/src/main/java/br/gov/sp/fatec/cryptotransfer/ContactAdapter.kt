@@ -25,10 +25,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Filter
-import android.widget.Filterable
-import android.widget.PopupMenu
-import android.widget.TextView
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 import br.gov.sp.fatec.cryptotransfer.util.*
 import kotlin.collections.ArrayList
@@ -45,8 +42,9 @@ class ContactAdapter (private val context: Context,
     }
 
     inner class ContactViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        internal var contactName: TextView = view.findViewById(R.id.contactName) as TextView
-        internal var contactId: TextView = view.findViewById(R.id.contactId) as TextView
+        internal var contactName = view.findViewById(R.id.contactName) as TextView
+        internal var contactId = view.findViewById(R.id.contactId) as TextView
+        internal var btnItemContactMenu = view.findViewById(R.id.btnItemContactMenu) as ImageButton
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
@@ -58,30 +56,32 @@ class ContactAdapter (private val context: Context,
         holder.contactName.text = filteredList[position]!!.name
         holder.contactId.text = filteredList[position]!!.id
 
-        val selectedContact = filteredList[position] as Contact
-//        val popupMenu = PopupMenu(context, holder.itemView)
-//        popupMenu.inflate(R.menu.rv_item_contact_menu)
-//        popupMenu.setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener {
-//            override fun onMenuItemClick(item: MenuItem): Boolean {
-//                when (item.itemId) {
-//                    R.id.item_menu_send -> {
-//                        return true
-//                    }
-//                    R.id.item_menu_edit -> {
-////                        cellClickListener.onCellClickListener(selectedContact)
-//                        return true
-//                    }
-//                    R.id.item_menu_delete -> {
-////                        removeItem(position)
-//                        return true
-//                    }
-//                    else -> return false
-//                }
-//            }
-//        })
-//        popupMenu.show()
-        holder.itemView.setOnClickListener {
-            cellClickListener.onCellClickListener(selectedContact)
+//        val selectedContact = filteredList[position] as Contact
+//        holder.itemView.setOnClickListener {
+//            cellClickListener.onCellClickListener(selectedContact)
+//        }
+        holder.btnItemContactMenu.setOnClickListener {
+            val popupMenu = PopupMenu(context, it)
+//            popupMenu.menuInflater.inflate(R.menu.rv_item_contact_menu, popupMenu.menu)
+            popupMenu.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.item_menu_send -> {
+                        sendToContact(position)
+                        true
+                    }
+                    R.id.item_menu_edit -> {
+                        editItem(position)
+                        true
+                    }
+                    R.id.item_menu_delete -> {
+                        removeItem(position)
+                        true
+                    }
+                    else -> false
+                }
+            }
+            popupMenu.inflate(R.menu.rv_item_contact_menu)
+            popupMenu.show()
         }
     }
 
@@ -142,22 +142,25 @@ class ContactAdapter (private val context: Context,
         deleteContactFromFile(context, deleted)
         filteredList.removeAt(position)
         notifyItemRemoved(position)
+        notifyDataSetChanged()
     }
 
 
-    private fun sendToContact(contact: Contact) {
+    private fun sendToContact(position: Int) {
+        val selected = filteredList[position] as Contact
         /*** pass selected contactID to MainActivity ***/
         val intent = Intent(context, MainActivity::class.java)
-        intent.putExtra("selectedReceiverID", contact.id)
+        intent.putExtra("selectedReceiverID", selected.id)
         context.startActivity(intent)
     }
 
-    private fun editContact(contact: Contact) {
+    private fun editItem(position: Int) {
+        val selected = filteredList[position] as Contact
         /*** pass selected contactID to NewContactActivity ***/
         val intent = Intent(context, NewContactActivity::class.java)
         intent.putExtra("updateContact", "update")
-        intent.putExtra("selectedContactName", contact.name)
-        intent.putExtra("selectedContactID", contact.id)
+        intent.putExtra("selectedContactName", selected.name)
+        intent.putExtra("selectedContactID", selected.id)
         context.startActivity(intent)
     }
 }
