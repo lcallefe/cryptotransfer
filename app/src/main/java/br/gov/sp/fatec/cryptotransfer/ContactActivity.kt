@@ -20,20 +20,15 @@
 package br.gov.sp.fatec.cryptotransfer
 
 import android.content.Intent
-import android.graphics.ColorSpace
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.widget.LinearLayout
 import android.widget.SearchView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import br.gov.sp.fatec.cryptotransfer.util.*
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.list_item_contact.*
 
 class ContactActivity : AppCompatActivity(), CellOnClickListener {
 
@@ -89,23 +84,23 @@ class ContactActivity : AppCompatActivity(), CellOnClickListener {
 
     override fun onCellClickListener(data: Contact) {
 //        findViewById<LinearLayout>(R.id.ll_container_menu).visibility = View.VISIBLE
-        sendToContact(data)
+//        sendToContact(data)
 //        editContact(data)
     }
 
-    private fun sendToContact(contact: Contact) {
-        /*** pass selected contactID to MainActivity ***/
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("selectedReceiverID", contact.id)
-        startActivity(intent)
-    }
-
-    private fun editContact(contact: Contact) {
-        /*** pass selected contactID to NewContactActivity ***/
-        val intent = Intent(this, NewContactActivity::class.java)
-        intent.putExtra("updateContact", "update")
-        intent.putExtra("selectedContactName", contact.name)
-        intent.putExtra("selectedContactID", contact.id)
-        startActivity(intent)
-    }
+//    private fun sendToContact(contact: Contact) {
+//        /*** pass selected contactID to MainActivity ***/
+//        val intent = Intent(this, MainActivity::class.java)
+//        intent.putExtra("selectedReceiverID", contact.id)
+//        startActivity(intent)
+//    }
+//
+//    private fun editContact(contact: Contact) {
+//        /*** pass selected contactID to NewContactActivity ***/
+//        val intent = Intent(this, NewContactActivity::class.java)
+//        intent.putExtra("updateContact", "update")
+//        intent.putExtra("selectedContactName", contact.name)
+//        intent.putExtra("selectedContactID", contact.id)
+//        startActivity(intent)
+//    }
 }

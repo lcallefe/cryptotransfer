@@ -22,7 +22,6 @@ package br.gov.sp.fatec.cryptotransfer
 import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -62,7 +61,6 @@ class ContactAdapter (private val context: Context,
 //        }
         holder.btnItemContactMenu.setOnClickListener {
             val popupMenu = PopupMenu(context, it)
-//            popupMenu.menuInflater.inflate(R.menu.rv_item_contact_menu, popupMenu.menu)
             popupMenu.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.item_menu_send -> {
@@ -91,11 +89,11 @@ class ContactAdapter (private val context: Context,
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val charSearch = constraint.toString()
-                if (charSearch.isEmpty()) {
-                    filteredList = myDataset
+                filteredList = if (charSearch.isEmpty()) {
+                    myDataset
                 } else {
-                    filteredList = myDataset.filter { it != null &&
-                        (it.name.contains(charSearch, ignoreCase = true) || it.id.contains(charSearch, ignoreCase = true))
+                    myDataset.filter { it != null &&
+                            (it.name.contains(charSearch, ignoreCase = true) || it.id.contains(charSearch, ignoreCase = true))
                     } as ArrayList<Contact?>
                 }
                 val filterResult = FilterResults()
@@ -111,31 +109,31 @@ class ContactAdapter (private val context: Context,
         }
     }
 
-    override fun getItemViewType(position: Int): Int {
-        if (filteredList[position]!!.showMenu)
-            return 1
-        else
-            return 0
-    }
-
-    fun showMenu(position: Int) {
-        filteredList.forEach { c -> c!!.showMenu = false }
-        filteredList[position]?.showMenu = true
-        notifyDataSetChanged()
-    }
-
-    fun isMenuShown(): Boolean {
-        for (c in filteredList) {
-            if (c!!.showMenu)
-                return true
-        }
-        return false
-    }
-
-    fun closeMenu() {
-        filteredList.forEach { c -> c!!.showMenu = false }
-        notifyDataSetChanged()
-    }
+//    override fun getItemViewType(position: Int): Int {
+//        if (filteredList[position]!!.showMenu)
+//            return 1
+//        else
+//            return 0
+//    }
+//
+//    fun showMenu(position: Int) {
+//        filteredList.forEach { c -> c!!.showMenu = false }
+//        filteredList[position]?.showMenu = true
+//        notifyDataSetChanged()
+//    }
+//
+//    fun isMenuShown(): Boolean {
+//        for (c in filteredList) {
+//            if (c!!.showMenu)
+//                return true
+//        }
+//        return false
+//    }
+//
+//    fun closeMenu() {
+//        filteredList.forEach { c -> c!!.showMenu = false }
+//        notifyDataSetChanged()
+//    }
 
     private fun removeItem(position: Int) {
         val deleted = filteredList[position] as Contact

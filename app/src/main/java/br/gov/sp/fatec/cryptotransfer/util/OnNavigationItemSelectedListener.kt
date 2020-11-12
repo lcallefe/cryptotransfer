@@ -22,6 +22,7 @@ package br.gov.sp.fatec.cryptotransfer.util
 import android.app.Activity
 import android.content.Intent
 import br.gov.sp.fatec.cryptotransfer.ContactActivity
+import br.gov.sp.fatec.cryptotransfer.HistoryActivity
 import br.gov.sp.fatec.cryptotransfer.MainActivity
 import br.gov.sp.fatec.cryptotransfer.R
 import com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemSelectedListener
@@ -39,6 +40,8 @@ fun set(activity: Activity) = OnNavigationItemSelectedListener {
             return@OnNavigationItemSelectedListener true
         }
         R.id.historyFragment -> {
+            activity.startActivity(Intent(activity, HistoryActivity::class.java))
+            activity.finish()
             return@OnNavigationItemSelectedListener true
         }
     }

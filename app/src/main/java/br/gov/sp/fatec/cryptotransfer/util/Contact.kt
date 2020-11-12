@@ -27,7 +27,6 @@ import br.gov.sp.fatec.cryptotransfer.R
 import com.google.gson.Gson
 import java.io.BufferedReader
 import java.io.File
-import java.lang.Exception
 
 class Contact(var name: String, var id: String, var showMenu: Boolean = false)
 
@@ -37,10 +36,10 @@ fun readContactsFomFile(context: Context): Contacts {
     val file = File(context.filesDir, "contacts.json")
     if (file.exists()) {
         //Creating a new Gson object to read data
-        var gson = Gson()
+        val gson = Gson()
         //Read the PostJSON.json file
         val bufferedReader: BufferedReader = file.bufferedReader()
-        // Read the text from buffferReader and store in String variable
+        // Read the text from bufferReader and store in String variable
         val inputString = bufferedReader.use { it.readText() }
         //Convert the Json File to Gson Object
         return gson.fromJson(inputString, Contacts::class.java)
@@ -64,7 +63,7 @@ fun addNewContactToFile(context: Context, contact: Contact) {
 
 fun deleteContactFromFile(context: Context, contact: Contact) {
     //Reading current file
-    var contacts: Contacts = readContactsFomFile(context)
+    val contacts: Contacts = readContactsFomFile(context)
     //Delete contact
     val update = deleteFromContacts(contacts, contact)
     //Save updated list
@@ -88,10 +87,13 @@ fun updateContactFromFile(context: Context, old: Contact, new: Contact) {
     }
 }
 
+fun getNameFromContacts(allContacts: Contacts, contactId: String): String? {
+    return allContacts.contacts.findLast { it?.id == contactId }?.name
+}
+
 private fun addToContacts(allContacts: Contacts, contact: Contact): Contacts {
-    var update = allContacts
-    update.contacts.add(contact)
-    return update
+    allContacts.contacts.add(contact)
+    return allContacts
 }
 
 private fun deleteFromContacts(allContacts: Contacts, contact: Contact): Contacts {
@@ -108,8 +110,10 @@ private fun saveContactsToFile(context: Context, contacts: Contacts) {
 }
 
 private fun objContactsToJSON(contacts: Contacts): String {
+    //order
+    contacts.contacts.sortBy { it?.name }
     //Creating a new Gson object to read data
-    var gson = Gson()
+    val gson = Gson()
     //Writing to JSON file
     return gson.toJson(contacts)
 }

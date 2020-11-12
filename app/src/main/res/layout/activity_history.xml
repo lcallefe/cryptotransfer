@@ -24,7 +24,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ContactActivity">
+    tools:context=".HistoryActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -35,7 +35,7 @@
         android:padding="3dp">
 
         <SearchView
-            android:id="@+id/sv_search_contact"
+            android:id="@+id/sv_search_history"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
@@ -45,13 +45,12 @@
             android:background="@drawable/search_bar" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_contacts"
+            android:id="@+id/rv_history"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="vertical"
-            tools:listitem="@layout/list_item_contact"/>
+            tools:listitem="@layout/list_item_history"/>
     </LinearLayout>
-
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"

@@ -22,8 +22,6 @@ package br.gov.sp.fatec.cryptotransfer
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.NotificationManager.IMPORTANCE_DEFAULT
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_GET_CONTENT
@@ -33,41 +31,49 @@ import android.provider.OpenableColumns
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import br.gov.sp.fatec.cryptotransfer.file.debugUpload
 import br.gov.sp.fatec.cryptotransfer.file.watch
 import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
+import br.gov.sp.fatec.cryptotransfer.util.copyTextToClipboard
+import br.gov.sp.fatec.cryptotransfer.util.pasteTextFromClipboard
 import br.gov.sp.fatec.cryptotransfer.util.set
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.random.Random.Default.nextInt
 
 class MainActivity : AppCompatActivity() {
     private val requestCode = nextInt(65536)
-    lateinit var receiver: EditText
+    private lateinit var receiver: EditText
+    private lateinit var btnSend: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         createNotificationChannel()
 
+        receiver = findViewById(R.id.ReceiverUserId)
+        btnSend = findViewById(R.id.btnSend)
+
+        /*** Show user ID ***/
         getFingerprint(this) { fingerprint ->
             findViewById<TextView>(R.id.SenderUserId).text = fingerprint
             ButtonCopy.setOnClickListener {
-                copyTextToClipboard(fingerprint)
+                copyTextToClipboard(this, fingerprint)
             }
         }
 
+        /*** Paste functionality for Receiver ID ***/
         ButtonPaste.setOnClickListener {
-            pasteTextFromClipboard()
+            ReceiverUserId.setText(pasteTextFromClipboard(this))
         }
 
         /*** Get ReceiverID from contact list ***/
         val receiverID = intent.getStringExtra("selectedReceiverID")
         if (receiverID != null && receiverID.isNotBlank())
-            ReceiverUserId.setText(receiverID)
+            receiver.setText(receiverID)
 
-        findViewById<Button>(R.id.btnSend).setOnClickListener {
+        /*** Send File ***/
+        btnSend.setOnClickListener {
             startActivityForResult(
                 Intent.createChooser(
                     Intent().setType("*/*").setAction(ACTION_GET_CONTENT),
@@ -75,8 +81,6 @@ class MainActivity : AppCompatActivity() {
                 ), requestCode
             )
         }
-
-        receiver = findViewById(R.id.ReceiverUserId)
 
         /*** Bottom bar navigation functionality ***/
         bottomNavigationView.setOnNavigationItemSelectedListener(set(this))
@@ -106,22 +110,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    private fun copyTextToClipboard(textToCopy: String) {
-        val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboardManager.setPrimaryClip(
-            ClipData.newPlainText("sender", textToCopy)
-        )
-
-        Toast.makeText(this, "Text copied to clipboard", Toast.LENGTH_LONG).show()
-    }
-
-    private fun pasteTextFromClipboard() {
-        val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        ReceiverUserId.setText(
-            clipboardManager.primaryClip?.getItemAt(0)?.text.toString().trim()
-        )
     }
 
     private fun createNotificationChannel() {
