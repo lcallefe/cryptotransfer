@@ -26,10 +26,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
-import br.gov.sp.fatec.cryptotransfer.util.Contact
-import br.gov.sp.fatec.cryptotransfer.util.addNewContactToFile
-import br.gov.sp.fatec.cryptotransfer.util.pasteTextFromClipboard
-import br.gov.sp.fatec.cryptotransfer.util.updateContactFromFile
+import br.gov.sp.fatec.cryptotransfer.util.*
 
 class NewContactActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,9 +77,9 @@ class NewContactActivity : AppCompatActivity() {
                 val new = Contact(name, id, false)
                 if (update != null && update.isNotBlank()) {
                     val old = Contact(intent.getStringExtra("selectedContactName")!!, intent.getStringExtra("selectedContactID")!!)
-                    updateContactFromFile(this, old, new)
+                    Contacts.updateContactInFile(this, old, new)
                 } else
-                    addNewContactToFile(this, new)
+                    Contacts.addNewContactToFile(this, new)
             }
         }
     }

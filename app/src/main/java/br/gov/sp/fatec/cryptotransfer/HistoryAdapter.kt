@@ -28,18 +28,21 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import br.gov.sp.fatec.cryptotransfer.util.Transfer
 
-class HistoryAdapter(private val myDataset: ArrayList<Transfer?>):
+class HistoryAdapter(private val myDataset: ArrayList<Transfer>):
     RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder>(), Filterable {
 
-    var filteredList = ArrayList<Transfer?>()
+    var filteredList = ArrayList<Transfer>()
 
     init {
         filteredList = myDataset
     }
 
     inner class HistoryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        internal var type = view.findViewById(R.id.tv_item_transfer_type) as TextView
         internal var receiverName = view.findViewById(R.id.tv_item_name) as TextView
         internal var receiverId = view.findViewById(R.id.tv_item_id) as TextView
+        internal var file = view.findViewById(R.id.tv_item_file) as TextView
+        internal var time = view.findViewById(R.id.tv_item_date) as TextView
 //        internal var btnItemHistoryMenu = view.findViewById(R.id.btnItemHistoryMenu) as Button
     }
 
@@ -49,8 +52,11 @@ class HistoryAdapter(private val myDataset: ArrayList<Transfer?>):
     }
 
     override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
-        holder.receiverName.text = filteredList[position]!!.receiverName
-        holder.receiverId.text = filteredList[position]!!.receiverId
+        holder.type.text = filteredList[position].transferType
+        holder.receiverName.text = filteredList[position].receiverName
+        holder.receiverId.text = filteredList[position].receiverId
+        holder.file.text = filteredList[position].fileName
+        holder.time.text = filteredList[position].sendDate.toString()
     }
 
     override fun getItemCount() = filteredList.size
@@ -62,11 +68,11 @@ class HistoryAdapter(private val myDataset: ArrayList<Transfer?>):
                 filteredList = if (charSearch.isEmpty()) {
                     myDataset
                 } else {
-                    myDataset.filter { it != null
-                            && ((it.receiverName != null && it.receiverName!!.contains(charSearch, ignoreCase = true))
+                    myDataset.filter {
+                        (it.receiverName != null && it.receiverName!!.contains(charSearch, ignoreCase = true))
                             || it.receiverId.contains(charSearch, ignoreCase = true)
-                            || it.fileName.contains(charSearch, ignoreCase = true))
-                    } as ArrayList<Transfer?>
+                            || it.fileName.contains(charSearch, ignoreCase = true)
+                    } as ArrayList<Transfer>
                 }
                 val filterResult = FilterResults()
                 filterResult.values = filteredList
@@ -75,7 +81,7 @@ class HistoryAdapter(private val myDataset: ArrayList<Transfer?>):
 
             @Suppress("UNCHECKED_CAST")
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                filteredList = results?.values as ArrayList<Transfer?>
+                filteredList = results?.values as ArrayList<Transfer>
                 notifyDataSetChanged()
             }
         }

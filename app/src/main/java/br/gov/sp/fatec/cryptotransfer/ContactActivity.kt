@@ -43,7 +43,7 @@ class ContactActivity : AppCompatActivity(), CellOnClickListener {
         val actionBar = supportActionBar
         actionBar!!.setTitle(R.string.contacts)
 
-        val contactsAll: ArrayList<Contact?> = readContactsFomFile(this).contacts
+        val contactsAll: ArrayList<Contact> = Contacts.readFomFile(this).list
         recyclerView = findViewById(R.id.rv_contacts)
         viewManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.layoutManager = viewManager

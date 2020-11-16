@@ -87,7 +87,6 @@
             android:id="@+id/btnSaveContact"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginHorizontal="50dp"
             android:layout_marginTop="20dp"
             android:background="@drawable/primary_button"
             android:text="@android:string/ok"

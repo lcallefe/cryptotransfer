@@ -39,4 +39,5 @@
     <string name="type_user_id">Digite o id do usuário</string>
     <string name="type_user_name">Digite o nome do usuário</string>
     <string name="text_to_clipboard">Text copied to clipboard</string>
+    <string name="no_changes">Nenhuma mudança verificada.</string>
 </resources>
