@@ -23,6 +23,8 @@ import android.content.Context
 import br.gov.sp.fatec.cryptotransfer.file.Receive.Companion.add
 import br.gov.sp.fatec.cryptotransfer.user.decrypt
 import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
+import br.gov.sp.fatec.cryptotransfer.util.Contact
+import br.gov.sp.fatec.cryptotransfer.util.Contacts
 import br.gov.sp.fatec.cryptotransfer.util.notify
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -30,16 +32,19 @@ import com.google.firebase.storage.StorageReference
 import kotlin.random.Random.Default.nextInt
 
 fun watch(context: Context) {
+    val contactsList = Contacts.readFomFile(context)
     getFingerprint(context) {
         FirebaseStorage.getInstance()
             .getReference(it).listAll().addOnSuccessListener {
                 it.prefixes.forEach {
                     if (add(it)) {
+                        val contactName = contactsList.getNameFromId(it.name)
+                        val contact = if (contactName.isNotBlank()) contactName else it.name
                         notify(
                             context,
                             nextInt(),
                             "Arquivos disponíveis",
-                            it.name + " te enviou um ou mais arquivos",
+                            contact + " te enviou um ou mais arquivos",
                             it.name
                         )
                     }
@@ -49,6 +54,7 @@ fun watch(context: Context) {
 }
 
 fun watch(context: Context, sender: String) {
+    val contactsList = Contacts.readFomFile(context)
     getFingerprint(context) { fingerprint ->
         FirebaseStorage.getInstance()
             .getReference("$fingerprint/$sender").listAll().addOnSuccessListener { result ->
@@ -67,10 +73,12 @@ fun watch(context: Context, sender: String) {
                                             val iv = encoder.encode(it)
                                             decrypt(context, key["secret"]!!) {
                                                 val secret = encoder.encode(it)
+                                                val contactName = contactsList.getNameFromId(sender)
+                                                val contact = if (contactName.isNotBlank()) contactName else sender
                                                 notify(
                                                     context,
                                                     nextInt(),
-                                                    "Arquivo disponível de $sender",
+                                                    "Arquivo disponível de $contact",
                                                     name,
                                                     sender,
                                                     name,

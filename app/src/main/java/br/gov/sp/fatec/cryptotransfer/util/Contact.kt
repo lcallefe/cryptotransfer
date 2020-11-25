@@ -34,8 +34,8 @@ import kotlin.collections.ArrayList
 class Contact(var name: String, var id: String, var showMenu: Boolean = false)
 
 class Contacts(var list: ArrayList<Contact> = ArrayList()) {
-    fun getNameFromId(id: String): String? {
-        return this.list.findLast { it.id == id }?.name
+    fun getNameFromId(id: String): String {
+        return this.list.findLast { it.id == id }?.name as String
     }
 
     private fun addContact(contact: Contact): Contacts {
