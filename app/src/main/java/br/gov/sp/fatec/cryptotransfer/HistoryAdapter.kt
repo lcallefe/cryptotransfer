@@ -26,64 +26,63 @@ import android.widget.Filter
 import android.widget.Filterable
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import br.gov.sp.fatec.cryptotransfer.util.Transfer
 
-class HistoryAdapter(private val myDataset: ArrayList<Transfer>):
-    RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder>(), Filterable {
-
-    var filteredList = ArrayList<Transfer>()
-
-    init {
-        filteredList = myDataset
-    }
-
-    inner class HistoryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        internal var type = view.findViewById(R.id.tv_item_transfer_type) as TextView
-        internal var receiverName = view.findViewById(R.id.tv_item_name) as TextView
-        internal var receiverId = view.findViewById(R.id.tv_item_id) as TextView
-        internal var file = view.findViewById(R.id.tv_item_file) as TextView
-        internal var time = view.findViewById(R.id.tv_item_date) as TextView
-//        internal var btnItemHistoryMenu = view.findViewById(R.id.btnItemHistoryMenu) as Button
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_history, parent, false) as View
-        return HistoryViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
-        holder.type.text = filteredList[position].transferType
-        holder.receiverName.text = filteredList[position].receiverName
-        holder.receiverId.text = filteredList[position].receiverId
-        holder.file.text = filteredList[position].fileName
-        holder.time.text = filteredList[position].sendDate.toString()
-    }
-
-    override fun getItemCount() = filteredList.size
-
-    override fun getFilter(): Filter {
-        return object : Filter() {
-            override fun performFiltering(constraint: CharSequence?): FilterResults {
-                val charSearch = constraint.toString()
-                filteredList = if (charSearch.isEmpty()) {
-                    myDataset
-                } else {
-                    myDataset.filter {
-                        (it.receiverName != null && it.receiverName!!.contains(charSearch, ignoreCase = true))
-                            || it.receiverId.contains(charSearch, ignoreCase = true)
-                            || it.fileName.contains(charSearch, ignoreCase = true)
-                    } as ArrayList<Transfer>
-                }
-                val filterResult = FilterResults()
-                filterResult.values = filteredList
-                return filterResult
-            }
-
-            @Suppress("UNCHECKED_CAST")
-            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                filteredList = results?.values as ArrayList<Transfer>
-                notifyDataSetChanged()
-            }
-        }
-    }
-}
+//class HistoryAdapter(private val myDataset: ArrayList<Transfer>):
+//    RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder>(), Filterable {
+//
+//    var filteredList = ArrayList<Transfer>()
+//
+//    init {
+//        filteredList = myDataset
+//    }
+//
+//    inner class HistoryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+//        internal var type = view.findViewById(R.id.tv_item_transfer_type) as TextView
+//        internal var receiverName = view.findViewById(R.id.tv_item_name) as TextView
+//        internal var receiverId = view.findViewById(R.id.tv_item_id) as TextView
+//        internal var file = view.findViewById(R.id.tv_item_file) as TextView
+//        internal var time = view.findViewById(R.id.tv_item_date) as TextView
+////        internal var btnItemHistoryMenu = view.findViewById(R.id.btnItemHistoryMenu) as Button
+//    }
+//
+//    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
+//        val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_history, parent, false) as View
+//        return HistoryViewHolder(view)
+//    }
+//
+//    override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
+//        holder.type.text = filteredList[position].transferType
+//        holder.receiverName.text = filteredList[position].receiverName
+//        holder.receiverId.text = filteredList[position].receiverId
+//        holder.file.text = filteredList[position].fileName
+//        holder.time.text = filteredList[position].sendDate.toString()
+//    }
+//
+//    override fun getItemCount() = filteredList.size
+//
+//    override fun getFilter(): Filter {
+//        return object : Filter() {
+//            override fun performFiltering(constraint: CharSequence?): FilterResults {
+//                val charSearch = constraint.toString()
+//                filteredList = if (charSearch.isEmpty()) {
+//                    myDataset
+//                } else {
+//                    myDataset.filter {
+//                        (it.receiverName != null && it.receiverName!!.contains(charSearch, ignoreCase = true))
+//                            || it.receiverId.contains(charSearch, ignoreCase = true)
+//                            || it.fileName.contains(charSearch, ignoreCase = true)
+//                    } as ArrayList<Transfer>
+//                }
+//                val filterResult = FilterResults()
+//                filterResult.values = filteredList
+//                return filterResult
+//            }
+//
+//            @Suppress("UNCHECKED_CAST")
+//            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+//                filteredList = results?.values as ArrayList<Transfer>
+//                notifyDataSetChanged()
+//            }
+//        }
+//    }
+//}

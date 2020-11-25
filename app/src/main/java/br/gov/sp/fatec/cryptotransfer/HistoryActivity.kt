@@ -21,18 +21,31 @@ package br.gov.sp.fatec.cryptotransfer
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import br.gov.sp.fatec.cryptotransfer.user.decrypt
 import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
 import br.gov.sp.fatec.cryptotransfer.util.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_main.*
+
+data class Transfer(
+    val receiver: String,
+    val time: Long,
+    val mimeType: String,
+    val name: String,
+    val received: Boolean
+)
 
 class HistoryActivity : AppCompatActivity() {
 
@@ -40,35 +53,62 @@ class HistoryActivity : AppCompatActivity() {
     private lateinit var viewAdapter: HistoryAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    private var history: List<Transfer> = ArrayList(0)
+
+    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
+        super.onCreate(savedInstanceState, persistentState)
         setContentView(R.layout.activity_history)
 
         val actionBar = supportActionBar
         actionBar!!.setTitle(R.string.history)
 
-        var fingerprint = ""
-        getFingerprint(this) { fingerprint = it }
+//        var fingerprint = ""
+//        getFingerprint(this) { fingerprint = it }
 
+        getFingerprint(this) { fingerprint ->
+            FirebaseFirestore.getInstance().collection("transfer").whereEqualTo("sender", fingerprint)
+                .get().addOnSuccessListener {
+                    val transfers = HashSet<Transfer>()
+                    it.forEach { document ->
+                        println(document.data["name"] as String)
+                        decrypt(this, document.data["name"] as String) {
+                            val name = String(it)
+                            decrypt(this, document.data["mimeType"] as String) {
+                                val mimeType = String(it)
+                                val time = document.data["time"] as Long
+                                val receiver = document.data["receiver"] as String
+                                FirebaseStorage.getInstance().getReference(receiver)
+                                    .child("$fingerprint/$time").downloadUrl.addOnSuccessListener {
+                                        transfers.add(Transfer(receiver, time, mimeType, name, false))
+                                        history = transfers.sortedBy { it.time }
+                                    }.addOnFailureListener {
+                                        transfers.add(Transfer(receiver, time, mimeType, name, true))
+                                        history = transfers.sortedBy { it.time }
+                                    }
+                            }
+                        }
+                    }
+                }
+        }
 //        val rootRef = FirebaseFirestore.getInstance()
 //        val query = rootRef!!.collection("transfer")
 //            .whereEqualTo("receiver", fingerprint)
 //            .orderBy("time", Query.Direction.DESCENDING)
 //        val options = FirestoreRecyclerOptions.Builder<TransferModel>().setQuery(query, TransferModel::class.java).build()
 
-        var history = History(fingerprint)
-        readData(this, fingerprint, object: MyCallback {
-            override fun onCallback(value: ArrayList<Transfer>) {
-                value.sortByDescending { it.sendDate }
-                history.transferList = value
-            }
-        })
+//        var history = History(fingerprint)
+//        readData(this, fingerprint, object: MyCallback {
+//            override fun onCallback(value: ArrayList<Transfer>) {
+//                value.sortByDescending { it.sendDate }
+//                history.transferList = value
+//            }
+//        })
 
         recyclerView = findViewById(R.id.rv_history)
         viewManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.layoutManager = viewManager
-//        viewAdapter = HistoryAdapter(history.findNames(this).transferList)
-//        recyclerView.adapter = viewAdapter
+        viewAdapter = HistoryAdapter(history as ArrayList<Transfer>)
+        recyclerView.adapter = viewAdapter
 
         /*** Search Bar functionality ***/
         findViewById<SearchView>(R.id.sv_search_history).setOnQueryTextListener(object: SearchView.OnQueryTextListener {
@@ -118,4 +158,63 @@ class HistoryActivity : AppCompatActivity() {
 //            textView.text = time.toString()
 //        }
 //    }
+    class HistoryAdapter(private val myDataset: ArrayList<Transfer>):
+        RecyclerView.Adapter<HistoryAdapter.HistoryViewHolder>(), Filterable {
+
+        var filteredList = ArrayList<Transfer>()
+
+        init {
+            filteredList = myDataset
+        }
+
+        inner class HistoryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            internal var type = view.findViewById(R.id.tv_item_transfer_type) as TextView
+            internal var receiverName = view.findViewById(R.id.tv_item_name) as TextView
+            internal var receiverId = view.findViewById(R.id.tv_item_id) as TextView
+            internal var file = view.findViewById(R.id.tv_item_file) as TextView
+            internal var time = view.findViewById(R.id.tv_item_date) as TextView
+    //        internal var btnItemHistoryMenu = view.findViewById(R.id.btnItemHistoryMenu) as Button
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HistoryViewHolder {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_history, parent, false) as View
+            return HistoryViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: HistoryViewHolder, position: Int) {
+            holder.type.text = filteredList[position].mimeType
+            holder.receiverName.text = filteredList[position].receiver
+            holder.receiverId.text = filteredList[position].receiver
+            holder.file.text = filteredList[position].name
+            holder.time.text = filteredList[position].time.toString()
+        }
+
+        override fun getItemCount() = filteredList.size
+
+        override fun getFilter(): Filter {
+            return object : Filter() {
+                override fun performFiltering(constraint: CharSequence?): FilterResults {
+                    val charSearch = constraint.toString()
+                    filteredList = if (charSearch.isEmpty()) {
+                        myDataset
+                    } else {
+                        myDataset.filter {
+                            (it.receiver != null && it.receiver!!.contains(charSearch, ignoreCase = true))
+                                    || it.receiver.contains(charSearch, ignoreCase = true)
+                                    || it.name.contains(charSearch, ignoreCase = true)
+                        } as ArrayList<Transfer>
+                    }
+                    val filterResult = FilterResults()
+                    filterResult.values = filteredList
+                    return filterResult
+                }
+
+                @Suppress("UNCHECKED_CAST")
+                override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                    filteredList = results?.values as ArrayList<Transfer>
+                    notifyDataSetChanged()
+                }
+            }
+        }
+    }
 }
