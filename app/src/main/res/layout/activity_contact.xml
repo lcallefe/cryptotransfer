@@ -38,9 +38,11 @@
             android:id="@+id/sv_search_contact"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="3dp"
             android:iconifiedByDefault="false"
             android:queryHint="@string/search"
-            android:queryBackground="@null"/>
+            android:queryBackground="@null"
+            android:background="@drawable/search_bar" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_contacts"
@@ -56,7 +58,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="?android:attr/windowBackground"
+        android:background="@color/colorPrimary"
         app:itemBackground="@color/colorPrimary"
         app:itemIconTint="@color/white"
         app:itemTextColor="@color/white"

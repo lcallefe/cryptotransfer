@@ -18,58 +18,80 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<RelativeLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_centerInParent="true"
+    android:padding="20dp"
     tools:context=".NewContactActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.1">
 
 
         <EditText
-            android:id="@+id/newContactName"
+            android:id="@+id/NewContactName"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginStart="20dp"
-            android:hint="Digite o nome do usuário"
-            android:elevation="4dp"
-            android:gravity="center" />
-
-        <EditText
+            android:layout_height="50dp"
+            android:background="@drawable/search_bar"
             android:gravity="center"
-            android:id="@+id/newContactId"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:hint="@string/type_user_name"
+            android:inputType="text"
+            android:maxLines="1"
             android:padding="12dp"
+            android:textAlignment="center" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
             android:layout_marginTop="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginStart="20dp"
-            android:hint="Digite o id do usuário"
-            android:elevation="4dp" />
+            android:background="@drawable/search_bar"
+            android:orientation="horizontal"
+            android:paddingStart="15dp"
+            android:paddingEnd="10dp">
+
+        <EditText
+            android:id="@+id/NewContactId"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="10"
+            android:hint="@string/type_user_id"
+            android:imeOptions="actionDone"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:maxLines="1"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
+
+            <ImageButton
+                android:id="@+id/btnPaste"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:contentDescription="Paste Icon"
+                android:src="@drawable/ic_paste_file" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/btnSaveContact"
-            android:layout_gravity="end"
-            android:layout_marginEnd="20dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
+            android:layout_height="50dp"
             android:layout_marginTop="20dp"
+            android:background="@drawable/primary_button"
             android:text="@android:string/ok"
-            android:gravity="center"
-            android:textColor="@android:color/white"
-            android:background="@color/colorAccent" />
-
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@android:color/white" />
     </LinearLayout>
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

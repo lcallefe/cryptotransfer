@@ -19,28 +19,22 @@
 
 package br.gov.sp.fatec.cryptotransfer.util
 
-import android.app.Activity
-import android.content.Intent
-import br.gov.sp.fatec.cryptotransfer.ContactActivity
-import br.gov.sp.fatec.cryptotransfer.MainActivity
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
 import br.gov.sp.fatec.cryptotransfer.R
-import com.google.android.material.bottomnavigation.BottomNavigationView.OnNavigationItemSelectedListener
 
-fun set(activity: Activity) = OnNavigationItemSelectedListener {
-    when (it.itemId) {
-        R.id.contactFragment -> {
-            activity.startActivity(Intent(activity, ContactActivity::class.java))
-            activity.finish()
-            return@OnNavigationItemSelectedListener true
-        }
-        R.id.sendFragment -> {
-            activity.startActivity(Intent(activity, MainActivity::class.java))
-            activity.finish()
-            return@OnNavigationItemSelectedListener true
-        }
-//        R.id.historyFragment -> {
-//            return@OnNavigationItemSelectedListener true
-//        }
-    }
-    false
+fun copyTextToClipboard(context: Context, textToCopy: String) {
+    val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    clipboardManager.setPrimaryClip(
+        ClipData.newPlainText("sender", textToCopy)
+    )
+
+    Toast.makeText(context, context.getString(R.string.text_to_clipboard), Toast.LENGTH_LONG).show()
+}
+
+fun pasteTextFromClipboard(context: Context): String {
+    val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    return clipboardManager.primaryClip?.getItemAt(0)?.text.toString().trim()
 }

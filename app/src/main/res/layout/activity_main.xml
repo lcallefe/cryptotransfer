@@ -44,59 +44,67 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_marginVertical="15dp"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/sender_id" />
+            android:orientation="horizontal"
+            android:paddingEnd="10dp"
+            android:paddingStart="15dp"
+            android:paddingVertical="5dp"
+            android:background="@drawable/search_bar">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_weight="10">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sender_id" />
+
                 <TextView
                     android:id="@+id/SenderUserId"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="4"
-                    android:layout_gravity="center_vertical" />
-
-                <ImageButton
-                    android:id="@+id/ButtonCopy"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end|center"
-                    android:src="@drawable/ic_copy_file"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="Copy Icon" />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small" />
             </LinearLayout>
-
+            <ImageButton
+                android:id="@+id/ButtonCopy"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:src="@drawable/ic_copy_file"
+                android:background="@android:color/transparent"
+                android:contentDescription="Copy Icon" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_marginVertical="15dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingEnd="10dp"
+            android:paddingStart="15dp"
+            android:background="@drawable/search_bar">
             <EditText
                 android:id="@+id/ReceiverUserId"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="4"
+                android:layout_weight="10"
                 android:hint="@string/insert_receiver"
                 android:inputType="text"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 android:textAlignment="center"
                 android:maxLines="1"
-                android:importantForAutofill="no" />
+                android:importantForAutofill="no"
+                android:imeOptions="actionDone" />
 
             <ImageButton
                 android:id="@+id/ButtonPaste"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|center"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:src="@drawable/ic_paste_file"
                 android:background="@android:color/transparent"
                 android:contentDescription="Paste Icon" />
@@ -105,7 +113,7 @@
         <Button
             android:id="@+id/btnSend"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_marginVertical="15dp"
             android:text="@string/send"
             android:textColor="@color/white"
@@ -135,7 +143,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="?android:attr/windowBackground"
+        android:background="@color/colorPrimary"
         app:itemBackground="@color/colorPrimary"
         app:itemIconTint="@color/white"
         app:itemTextColor="@color/white"

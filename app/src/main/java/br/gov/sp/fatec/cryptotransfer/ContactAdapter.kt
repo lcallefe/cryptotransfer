@@ -31,11 +31,11 @@ import br.gov.sp.fatec.cryptotransfer.util.*
 import kotlin.collections.ArrayList
 
 class ContactAdapter (private val context: Context,
-                      private val myDataset: ArrayList<Contact?>,
+                      private val myDataset: ArrayList<Contact>,
                       private val cellClickListener: CellOnClickListener) :
     RecyclerView.Adapter<ContactAdapter.ContactViewHolder>(), Filterable {
     
-    var filteredList = ArrayList<Contact?>()
+    var filteredList = ArrayList<Contact>()
 
     init {
         filteredList = myDataset
@@ -53,8 +53,8 @@ class ContactAdapter (private val context: Context,
     }
 
     override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
-        holder.contactName.text = filteredList[position]!!.name
-        holder.contactId.text = filteredList[position]!!.id
+        holder.contactName.text = filteredList[position].name
+        holder.contactId.text = filteredList[position].id
 
 //        val selectedContact = filteredList[position] as Contact
 //        holder.itemView.setOnClickListener {
@@ -91,12 +91,12 @@ class ContactAdapter (private val context: Context,
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val charSearch = constraint.toString()
-                if (charSearch.isEmpty()) {
-                    filteredList = myDataset
+                filteredList == if (charSearch.isEmpty()) {
+                    myDataset
                 } else {
-                    filteredList = myDataset.filter { it != null &&
-                        (it.name.contains(charSearch, ignoreCase = true) || it.id.contains(charSearch, ignoreCase = true))
-                    } as ArrayList<Contact?>
+                    myDataset.filter {
+                        it.name.contains(charSearch, ignoreCase = true) || it.id.contains(charSearch, ignoreCase = true)
+                    } as ArrayList<Contact>
                 }
                 val filterResult = FilterResults()
                 filterResult.values = filteredList
@@ -105,46 +105,26 @@ class ContactAdapter (private val context: Context,
 
             @Suppress("UNCHECKED_CAST")
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                filteredList = results?.values as ArrayList<Contact?>
+                filteredList = results?.values as ArrayList<Contact>
                 notifyDataSetChanged()
             }
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-        if (filteredList[position]!!.showMenu)
+        if (filteredList[position].showMenu)
             return 1
         else
             return 0
     }
 
-    fun showMenu(position: Int) {
-        filteredList.forEach { c -> c!!.showMenu = false }
-        filteredList[position]?.showMenu = true
-        notifyDataSetChanged()
-    }
-
-    fun isMenuShown(): Boolean {
-        for (c in filteredList) {
-            if (c!!.showMenu)
-                return true
-        }
-        return false
-    }
-
-    fun closeMenu() {
-        filteredList.forEach { c -> c!!.showMenu = false }
-        notifyDataSetChanged()
-    }
-
     private fun removeItem(position: Int) {
         val deleted = filteredList[position] as Contact
-        deleteContactFromFile(context, deleted)
+        Contacts.deleteContactFromFile(context, deleted)
         filteredList.removeAt(position)
         notifyItemRemoved(position)
         notifyDataSetChanged()
     }
-
 
     private fun sendToContact(position: Int) {
         val selected = filteredList[position] as Contact
