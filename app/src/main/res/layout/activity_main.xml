@@ -33,14 +33,45 @@
         android:layout_above="@id/bottomNavigationView"
         android:padding="30dp">
 
-        <ImageView
-            android:id="@+id/imageView"
+        <LinearLayout
+            android:id="@+id/ma_logo"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
-            android:background="@android:color/transparent"
-            app:srcCompat="@drawable/logovector"
-            android:contentDescription="Logo" />
+            android:orientation="vertical"
+            android:contentDescription="Logo">
+
+            <RelativeLayout
+                android:id="@+id/ma_iv_logo_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="110dp">
+                <ImageView
+                    android:id="@+id/ma_iv_logo_paperplane"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:adjustViewBounds="true"
+                    android:transitionName="logo_paperplane"
+                    android:src="@drawable/logo_paperplane" />
+
+                <ImageView
+                    android:id="@+id/ma_iv_logo_path"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:adjustViewBounds="true"
+                    android:src="@drawable/logo_plane_path" />
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/ma_iv_logo_app_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="50dp"
+                android:adjustViewBounds="true"
+                android:src="@drawable/logo_app_name" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

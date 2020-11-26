@@ -53,6 +53,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         createNotificationChannel()
+        supportActionBar?.hide()
 
         receiver = findViewById(R.id.ReceiverUserId)
         btnSend = findViewById(R.id.btnSend)

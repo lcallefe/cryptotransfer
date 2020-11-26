@@ -19,44 +19,66 @@
 
 package br.gov.sp.fatec.cryptotransfer
 
+import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
-import android.animation.PropertyValuesHolder
-import android.animation.ValueAnimator
+import android.app.ActivityOptions
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
+import android.view.View
+import android.view.Window
 import android.view.WindowManager
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.view.animation.LinearInterpolator
 import android.widget.ImageView
+import androidx.appcompat.app.AppCompatActivity
+
 
 class SplashActivity : AppCompatActivity() {
 
-    lateinit var iv_icon: ImageView
+    lateinit var iv_plane: ImageView
+    lateinit var iv_path: ImageView
     lateinit var iv_name: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        iv_icon = findViewById(R.id.iv_icon_logo)
-        iv_name = findViewById(R.id.iv_app_name_logo)
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
+        supportActionBar?.hide()
 
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        iv_plane = findViewById(R.id.ss_iv_logo_paperplane)
+        iv_path = findViewById(R.id.ss_iv_logo_path)
+        iv_name = findViewById(R.id.ss_iv_logo_app_name)
 
-        val animationIcon: Animation = AnimationUtils.loadAnimation(this, R.anim.opening_icon)
+
+        val animationPlane: Animation = AnimationUtils.loadAnimation(this, R.anim.opening_icon)
         val animationName: Animation = AnimationUtils.loadAnimation(this, R.anim.opening_app_name)
 
-        iv_icon.animation = animationIcon
+        iv_plane.animation = animationPlane
+        iv_path.animation = animationName
         iv_name.animation = animationName
 
-        Handler().postDelayed(Runnable {
+        Handler(Looper.getMainLooper()).postDelayed(Runnable {
             kotlin.run {
-                startActivity(Intent(this, MainActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                finish()
+                val intent =
+                    Intent(this, MainActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//                startActivity(intent)
+//                finish()
+//                var pairs = ArrayList<Pair<View, String>>()
+//                pairs[0] = Pair(iv_plane, "logo_paperplane")
+                val options = ActivityOptions.makeSceneTransitionAnimation(
+                    this,
+                    iv_plane,
+                    "logo_paperplane"
+                )
+                startActivity(intent, options.toBundle())
             }
-        }, 4000)
+        }, 3000)
     }
 }

@@ -27,7 +27,6 @@ import br.gov.sp.fatec.cryptotransfer.R
 import com.google.gson.Gson
 import java.io.BufferedReader
 import java.io.File
-import java.lang.Exception
 import java.util.*
 import kotlin.collections.ArrayList
 
