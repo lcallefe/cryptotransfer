@@ -78,7 +78,8 @@ class SplashActivity : AppCompatActivity() {
                     "logo_paperplane"
                 )
                 startActivity(intent, options.toBundle())
+                finish()
             }
-        }, 3000)
+        }, 2000)
     }
 }
