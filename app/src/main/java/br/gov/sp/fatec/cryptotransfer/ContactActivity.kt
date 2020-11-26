@@ -35,7 +35,7 @@ import br.gov.sp.fatec.cryptotransfer.util.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.list_item_contact.*
 
-class ContactActivity : AppCompatActivity(), CellOnClickListener {
+class ContactActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: ContactAdapter
@@ -52,7 +52,7 @@ class ContactActivity : AppCompatActivity(), CellOnClickListener {
         recyclerView = findViewById(R.id.rv_contacts)
         viewManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.layoutManager = viewManager
-        viewAdapter = ContactAdapter(this, contactsAll, this)
+        viewAdapter = ContactAdapter(this, contactsAll)
         recyclerView.adapter = viewAdapter
 
         /*** Search Bar functionality ***/
@@ -85,27 +85,5 @@ class ContactActivity : AppCompatActivity(), CellOnClickListener {
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onCellClickListener(data: Contact) {
-//        findViewById<LinearLayout>(R.id.ll_container_menu).visibility = View.VISIBLE
-        sendToContact(data)
-//        editContact(data)
-    }
-
-    private fun sendToContact(contact: Contact) {
-        /*** pass selected contactID to MainActivity ***/
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("selectedReceiverID", contact.id)
-        startActivity(intent)
-    }
-
-    private fun editContact(contact: Contact) {
-        /*** pass selected contactID to NewContactActivity ***/
-        val intent = Intent(this, NewContactActivity::class.java)
-        intent.putExtra("updateContact", "update")
-        intent.putExtra("selectedContactName", contact.name)
-        intent.putExtra("selectedContactID", contact.id)
-        startActivity(intent)
     }
 }

@@ -31,8 +31,7 @@ import br.gov.sp.fatec.cryptotransfer.util.*
 import kotlin.collections.ArrayList
 
 class ContactAdapter (private val context: Context,
-                      private val myDataset: ArrayList<Contact>,
-                      private val cellClickListener: CellOnClickListener) :
+                      private val myDataset: ArrayList<Contact>) :
     RecyclerView.Adapter<ContactAdapter.ContactViewHolder>(), Filterable {
     
     var filteredList = ArrayList<Contact>()
@@ -91,11 +90,12 @@ class ContactAdapter (private val context: Context,
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val charSearch = constraint.toString()
-                filteredList == if (charSearch.isEmpty()) {
+                filteredList = if (charSearch.isEmpty()) {
                     myDataset
                 } else {
                     myDataset.filter {
-                        it.name.contains(charSearch, ignoreCase = true) || it.id.contains(charSearch, ignoreCase = true)
+                        it.name.contains(charSearch, ignoreCase = true)
+                                || it.id.contains(charSearch, ignoreCase = true)
                     } as ArrayList<Contact>
                 }
                 val filterResult = FilterResults()

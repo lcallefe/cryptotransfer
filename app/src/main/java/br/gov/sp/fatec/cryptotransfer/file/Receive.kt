@@ -23,7 +23,6 @@ import android.content.Context
 import br.gov.sp.fatec.cryptotransfer.file.Receive.Companion.add
 import br.gov.sp.fatec.cryptotransfer.user.decrypt
 import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
-import br.gov.sp.fatec.cryptotransfer.util.Contact
 import br.gov.sp.fatec.cryptotransfer.util.Contacts
 import br.gov.sp.fatec.cryptotransfer.util.notify
 import com.google.firebase.firestore.FirebaseFirestore
@@ -38,8 +37,7 @@ fun watch(context: Context) {
             .getReference(it).listAll().addOnSuccessListener {
                 it.prefixes.forEach {
                     if (add(it)) {
-                        val contactName = contactsList.getNameFromId(it.name)
-                        val contact = if (contactName.isNotBlank()) contactName else it.name
+                        val contact = contactsList.getNameFromId(it.name) ?: it.name
                         notify(
                             context,
                             nextInt(),
@@ -73,8 +71,7 @@ fun watch(context: Context, sender: String) {
                                             val iv = encoder.encode(it)
                                             decrypt(context, key["secret"]!!) {
                                                 val secret = encoder.encode(it)
-                                                val contactName = contactsList.getNameFromId(sender)
-                                                val contact = if (contactName.isNotBlank()) contactName else sender
+                                                val contact = contactsList.getNameFromId(sender) ?: sender
                                                 notify(
                                                     context,
                                                     nextInt(),
