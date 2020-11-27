@@ -57,8 +57,14 @@ class SplashActivity : AppCompatActivity() {
         iv_name = findViewById(R.id.ss_iv_logo_app_name)
 
 
-        val animationPlane: Animation = AnimationUtils.loadAnimation(this, R.anim.opening_icon)
-        val animationName: Animation = AnimationUtils.loadAnimation(this, R.anim.opening_app_name)
+        val animationPlane: Animation = AnimationUtils.loadAnimation(
+            this,
+            R.anim.opening_icon
+        )
+        val animationName: Animation = AnimationUtils.loadAnimation(
+            this,
+            R.anim.opening_app_name
+        )
 
         iv_plane.animation = animationPlane
         iv_path.animation = animationName
@@ -66,10 +72,10 @@ class SplashActivity : AppCompatActivity() {
 
         Handler(Looper.getMainLooper()).postDelayed(Runnable {
             kotlin.run {
-                val intent =
-                    Intent(this, MainActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//                startActivity(intent)
-//                finish()
+                val intent = Intent(
+                    this,
+                    MainActivity::class.java
+                ).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 //                var pairs = ArrayList<Pair<View, String>>()
 //                pairs[0] = Pair(iv_plane, "logo_paperplane")
                 val options = ActivityOptions.makeSceneTransitionAnimation(

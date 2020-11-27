@@ -32,11 +32,12 @@ fun notify(context: Context, id: Int, title: String, text: String) {
     with(NotificationManagerCompat.from(context)) {
         notify(
             id, NotificationCompat.Builder(context, "Transferência de arquivo")
-                .setSmallIcon(R.drawable.logo)
+                .setSmallIcon(R.drawable.logo_icon)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setAutoCancel(true).build()
+                .setAutoCancel(true)
+                .build()
         )
     }
 }
@@ -45,13 +46,13 @@ fun notify(context: Context, id: Int, title: String, text: String, sender: Strin
     with(NotificationManagerCompat.from(context)) {
         notify(
             id, NotificationCompat.Builder(context, "Transferência de arquivo")
-                .setSmallIcon(R.drawable.logo)
+                .setSmallIcon(R.drawable.logo_icon)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setStyle(BigTextStyle().bigText(text))
                 .addAction(
-                    R.drawable.logo, "Mostrar", getBroadcast(
+                    R.drawable.ic_info_outlined, "Mostrar", getBroadcast(
                         context,
                         0,
                         Intent(context, Receiver::class.java).apply {
@@ -63,14 +64,15 @@ fun notify(context: Context, id: Int, title: String, text: String, sender: Strin
                     )
                 )
                 .addAction(
-                    R.drawable.logo,
+                    R.drawable.ic_delete_forever,
                     "Excluir todos",
                     getBroadcast(context, 0, Intent(context, Receiver::class.java).apply {
                         action = "Excluir todos" + System.currentTimeMillis()
                         putExtra("id", id)
                         putExtra("sender", sender)
                     }, 0)
-                ).build()
+                )
+                .build()
         )
     }
 }
@@ -91,13 +93,13 @@ fun notify(
     with(NotificationManagerCompat.from(context)) {
         notify(
             id, NotificationCompat.Builder(context, "Transferência de arquivo")
-                .setSmallIcon(R.drawable.logo)
+                .setSmallIcon(R.drawable.logo_icon)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setStyle(BigTextStyle().bigText(text))
                 .addAction(
-                    R.drawable.logo, "Baixar", getBroadcast(
+                    R.drawable.ic_save_alt, "Baixar", getBroadcast(
                         context,
                         0,
                         Intent(context, Receiver::class.java).apply {
@@ -115,7 +117,7 @@ fun notify(
                     )
                 )
                 .addAction(
-                    R.drawable.logo,
+                    R.drawable.ic_delete_forever,
                     "Excluir",
                     getBroadcast(context, 0, Intent(context, Receiver::class.java).apply {
                         action = "Excluir" + System.currentTimeMillis()
@@ -124,7 +126,8 @@ fun notify(
                         putExtra("archive", archive)
                         putExtra("time", time)
                     }, 0)
-                ).build()
+                )
+                .build()
         )
     }
 }

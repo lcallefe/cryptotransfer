@@ -16,8 +16,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".NewContactActivity" />
-        <activity android:name=".ContactActivity" />
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".ContactActivity"
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".MainActivity" />
         <activity android:name=".PinCreateActivity" />
         <activity android:name=".PinConfirmActivity" />
         <activity android:name=".ReceiverActivity" />

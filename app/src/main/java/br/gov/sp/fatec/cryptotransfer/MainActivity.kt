@@ -120,9 +120,14 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(
-                NotificationChannel("Transferência de arquivo", "Transferência de arquivo", IMPORTANCE_DEFAULT).apply {
+                NotificationChannel(
+                    "Transferência de arquivo",
+                    "Transferência de arquivo",
+                    IMPORTANCE_DEFAULT
+                ).apply {
                     description = "Transferência de arquivo"
-                })
+                }
+            )
         }
     }
 }

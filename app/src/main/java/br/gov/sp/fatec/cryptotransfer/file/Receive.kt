@@ -42,7 +42,7 @@ fun watch(context: Context) {
                             context,
                             nextInt(),
                             "Arquivos disponíveis",
-                            contact + " te enviou um ou mais arquivos",
+                            "De: " + contact,
                             it.name
                         )
                     }
