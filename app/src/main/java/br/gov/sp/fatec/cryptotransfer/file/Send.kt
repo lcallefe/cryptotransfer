@@ -25,6 +25,7 @@ import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
 import br.gov.sp.fatec.cryptotransfer.user.retrievePublicKey
 import br.gov.sp.fatec.cryptotransfer.user.sign
 import br.gov.sp.fatec.cryptotransfer.util.notify
+import com.google.common.io.BaseEncoding
 import com.google.common.io.BaseEncoding.base16
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -38,7 +39,7 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 import kotlin.random.Random
 
-val encoder = base16()
+val encoder: BaseEncoding = base16()
 
 fun debugUpload(context: Context, receiver: String, uri: Uri, name: String, mimeType: String) {
     val time = System.currentTimeMillis()
@@ -49,34 +50,34 @@ fun debugUpload(context: Context, receiver: String, uri: Uri, name: String, mime
         notify(context, notification, "Falha ao enviar arquivo", "Arquivo inválido")
     else {
         retrievePublicKey(receiver, {
-            val rsa = Cipher.getInstance("RSA")
-            rsa.init(
-                ENCRYPT_MODE,
-                KeyFactory.getInstance("RSA").generatePublic(X509EncodedKeySpec(encoder.decode(it)))
-            )
-            val secret = Random.nextBytes(32)
-            val iv = Random.nextBytes(16)
-            val aes = Cipher.getInstance("AES/CBC/PKCS5Padding")
-            aes.init(
-                ENCRYPT_MODE,
-                SecretKeySpec(secret, "AES"),
-                IvParameterSpec(iv)
-            )
-            val bytes = stream.readBytes()
-            val byteStream = ByteArrayOutputStream()
-            val gzip = GZIPOutputStream(byteStream)
-            val startEncryption = System.currentTimeMillis()
-            val encrypted = aes.doFinal(bytes)
-            val finishEncryption = System.currentTimeMillis()
-            gzip.write(encrypted)
-            gzip.close()
-            val finishZipping = System.currentTimeMillis()
-            sign(context, bytes) {
-                val finishSignature = System.currentTimeMillis()
-                val signature = encoder.encode(it)
-                getFingerprint(context) {
-                    notify(context, notification, "Envio de arquivo", "Enviando arquivo")
-                    try {
+            try {
+                val rsa = Cipher.getInstance("RSA")
+                rsa.init(
+                    ENCRYPT_MODE,
+                    KeyFactory.getInstance("RSA").generatePublic(X509EncodedKeySpec(encoder.decode(it)))
+                )
+                val secret = Random.nextBytes(32)
+                val iv = Random.nextBytes(16)
+                val aes = Cipher.getInstance("AES/CBC/PKCS5Padding")
+                aes.init(
+                    ENCRYPT_MODE,
+                    SecretKeySpec(secret, "AES"),
+                    IvParameterSpec(iv)
+                )
+                val bytes = stream.readBytes()
+                val byteStream = ByteArrayOutputStream()
+                val gzip = GZIPOutputStream(byteStream)
+                val startEncryption = System.currentTimeMillis()
+                val encrypted = aes.doFinal(bytes)
+                val finishEncryption = System.currentTimeMillis()
+                gzip.write(encrypted)
+                gzip.close()
+                val finishZipping = System.currentTimeMillis()
+                sign(context, bytes) {
+                    val finishSignature = System.currentTimeMillis()
+                    val signature = encoder.encode(it)
+                    getFingerprint(context) {
+                        notify(context, notification, "Envio de arquivo", "Enviando arquivo")
                         val firestore = FirebaseFirestore.getInstance()
                         firestore.collection("transfer").add(
                             mapOf(
@@ -116,15 +117,15 @@ fun debugUpload(context: Context, receiver: String, uri: Uri, name: String, mime
                             )
                         )
                         notify(context, notification, "Arquivo enviado", "Arquivo enviado com sucesso")
-                    } catch (ignored: OutOfMemoryError) {
-                        notify(
-                            context,
-                            notification,
-                            "Falha ao enviar arquivo",
-                            "A memória do dispositivo foi esgotada"
-                        )
                     }
                 }
+            } catch (ignored: OutOfMemoryError) {
+                notify(
+                    context,
+                    notification,
+                    "Falha ao enviar arquivo",
+                    "A memória do dispositivo foi esgotada"
+                )
             }
         }) { notify(context, notification, "Falha ao enviar arquivo", "Destinatário inválido") }
     }
