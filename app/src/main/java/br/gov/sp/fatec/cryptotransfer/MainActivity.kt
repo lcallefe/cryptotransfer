@@ -22,8 +22,6 @@ package br.gov.sp.fatec.cryptotransfer
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.NotificationManager.IMPORTANCE_DEFAULT
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_GET_CONTENT
@@ -33,9 +31,8 @@ import android.provider.OpenableColumns
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import br.gov.sp.fatec.cryptotransfer.file.debugUpload
+import br.gov.sp.fatec.cryptotransfer.file.upload
 import br.gov.sp.fatec.cryptotransfer.file.watch
 import br.gov.sp.fatec.cryptotransfer.user.getFingerprint
 import br.gov.sp.fatec.cryptotransfer.util.copyTextToClipboard
@@ -109,7 +106,7 @@ class MainActivity : AppCompatActivity() {
                         findViewById<TextView>(R.id.DebugFileSize).text =
                             if (!it.isNull(sizeIndex)) it.getString(sizeIndex) else "Desconhecido"
 
-                        debugUpload(this, receiver.text.toString(), uri, name, contentResolver.getType(uri)!!)
+                        upload(this, receiver.text.toString(), uri, name, contentResolver.getType(uri)!!)
                     }
                 }
             }

@@ -29,10 +29,8 @@ import com.google.common.io.BaseEncoding
 import com.google.common.io.BaseEncoding.base16
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import java.io.ByteArrayOutputStream
 import java.security.KeyFactory
 import java.security.spec.X509EncodedKeySpec
-import java.util.zip.GZIPOutputStream
 import javax.crypto.Cipher
 import javax.crypto.Cipher.ENCRYPT_MODE
 import javax.crypto.spec.IvParameterSpec
@@ -41,7 +39,7 @@ import kotlin.random.Random
 
 val encoder: BaseEncoding = base16()
 
-fun debugUpload(context: Context, receiver: String, uri: Uri, name: String, mimeType: String) {
+fun upload(context: Context, receiver: String, uri: Uri, name: String, mimeType: String) {
     val time = System.currentTimeMillis()
     val notification = Random.nextInt()
     notify(context, notification, "Envio de arquivo", "Preparando envio")
@@ -65,21 +63,11 @@ fun debugUpload(context: Context, receiver: String, uri: Uri, name: String, mime
                     IvParameterSpec(iv)
                 )
                 val bytes = stream.readBytes()
-                val byteStream = ByteArrayOutputStream()
-                val gzip = GZIPOutputStream(byteStream)
-                val startEncryption = System.currentTimeMillis()
-                val encrypted = aes.doFinal(bytes)
-                val finishEncryption = System.currentTimeMillis()
-                gzip.write(encrypted)
-                gzip.close()
-                val finishZipping = System.currentTimeMillis()
                 sign(context, bytes) {
-                    val finishSignature = System.currentTimeMillis()
                     val signature = encoder.encode(it)
                     getFingerprint(context) {
                         notify(context, notification, "Envio de arquivo", "Enviando arquivo")
-                        val firestore = FirebaseFirestore.getInstance()
-                        firestore.collection("transfer").add(
+                        FirebaseFirestore.getInstance().collection("transfer").add(
                             mapOf(
                                 "key" to mapOf(
                                     "secret" to encoder.encode(rsa.doFinal(secret)),
@@ -93,29 +81,9 @@ fun debugUpload(context: Context, receiver: String, uri: Uri, name: String, mime
                                 "signature" to signature
                             )
                         )
-                        val final = byteStream.toByteArray()
-                        val startUpload = System.currentTimeMillis()
                         FirebaseStorage.getInstance()
                             .getReference("$receiver/$it/$time")
-                            .putBytes(final)
-                        byteStream.close()
-                        firestore.collection("log").document(time.toString()).set(
-                            mapOf(
-                                "envio" to mapOf(
-                                    "upload" to System.currentTimeMillis() - startUpload,
-                                    "total" to System.currentTimeMillis() - time,
-                                    "criptografia" to finishEncryption - startEncryption,
-                                    "compactacao" to finishZipping - finishEncryption,
-                                    "assinatura" to finishSignature - finishZipping,
-                                    "android" to android.os.Build.VERSION.RELEASE,
-                                    "versao" to 0.1
-                                ),
-                                "tipo" to mimeType,
-                                "prebytes" to bytes.size,
-                                "midbytes" to encrypted.size,
-                                "posbytes" to final.size
-                            )
-                        )
+                            .putBytes(aes.doFinal(bytes))
                         notify(context, notification, "Arquivo enviado", "Arquivo enviado com sucesso")
                     }
                 }
